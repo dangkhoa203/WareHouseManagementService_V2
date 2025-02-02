@@ -25,7 +25,7 @@ namespace WareHouseManagement.Data
             builder.Entity<ProductType>(entity =>
             {
                 entity.HasMany(g => g.Products)
-                      .WithOne(p => p.ProductGroup)
+                      .WithOne(p => p.ProductType)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
             builder.Entity<CustomerGroup>(entity =>
@@ -92,7 +92,7 @@ namespace WareHouseManagement.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-DNBOOK\SQLEXPRESS;Database=Dev;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-N0V3KE1\SQLEXPRESS;Database=Dev;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
             base.OnConfiguring(optionsBuilder);
         }
         public virtual DbSet<ServiceRegistered> ServiceRegistereds { get; set; }

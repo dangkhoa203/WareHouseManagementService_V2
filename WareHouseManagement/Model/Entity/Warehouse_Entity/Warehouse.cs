@@ -2,5 +2,6 @@
 {
     public class Warehouse:EntityGeneric
     {
+        string Description { get; set; }
     }
 }

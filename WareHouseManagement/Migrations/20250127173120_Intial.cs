@@ -280,7 +280,7 @@ namespace WareHouseManagement.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PricePerUnit = table.Column<int>(type: "int", nullable: false),
                     MeasureUnit = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductGroupId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ProductTypeId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -291,8 +291,8 @@ namespace WareHouseManagement.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_ProductTypes_ProductGroupId",
-                        column: x => x.ProductGroupId,
+                        name: "FK_Products_ProductTypes_ProductTypeId",
+                        column: x => x.ProductTypeId,
                         principalTable: "ProductTypes",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -586,9 +586,9 @@ namespace WareHouseManagement.Migrations
                 column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_ProductGroupId",
+                name: "IX_Products_ProductTypeId",
                 table: "Products",
-                column: "ProductGroupId");
+                column: "ProductTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_ServiceRegisteredFromId",

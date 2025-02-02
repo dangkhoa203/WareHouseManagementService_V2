@@ -4,12 +4,14 @@ using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 
-namespace WareHouseManagement.Feature.Customers {
-    public class RemoveCustomer : IEndpoint {
+namespace WareHouseManagement.Feature.Products
+{
+    public class RemoveProduct:IEndpoint
+    {
         public record Request(string id);
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapDelete("/api/Customers/", Handler).RequireAuthorization().WithTags("Customers");
+            app.MapDelete("/api/Products/", Handler).RequireAuthorization().WithTags("Products");
         }
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users
@@ -17,11 +19,11 @@ namespace WareHouseManagement.Feature.Customers {
                 .Where(u => u.UserName == user.Identity.Name)
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
-            var customer = await context.Customers
+            var product = await context.Products
                 .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
                 .FirstOrDefaultAsync(g => g.Id == request.id);
-            if (customer != null) {
-                context.Customers.Remove(customer);
+            if (product != null) {
+                context.Products.Remove(product);
                 var result = await context.SaveChangesAsync();
                 if (result > 0)
                     return Results.Ok(new Response(true, ""));

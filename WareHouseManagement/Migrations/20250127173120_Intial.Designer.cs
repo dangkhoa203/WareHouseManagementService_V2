@@ -12,7 +12,7 @@ using WareHouseManagement.Data;
 namespace WareHouseManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250122014117_Intial")]
+    [Migration("20250127173120_Intial")]
     partial class Intial
     {
         /// <inheritdoc />
@@ -338,7 +338,7 @@ namespace WareHouseManagement.Migrations
                     b.Property<int>("PricePerUnit")
                         .HasColumnType("int");
 
-                    b.Property<string>("ProductGroupId")
+                    b.Property<string>("ProductTypeId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ServiceRegisteredFromId")
@@ -346,7 +346,7 @@ namespace WareHouseManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductGroupId");
+                    b.HasIndex("ProductTypeId");
 
                     b.HasIndex("ServiceRegisteredFromId");
 
@@ -740,15 +740,15 @@ namespace WareHouseManagement.Migrations
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Product_Entity.Product", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.ProductType", "ProductGroup")
+                    b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.ProductType", "ProductType")
                         .WithMany("Products")
-                        .HasForeignKey("ProductGroupId");
+                        .HasForeignKey("ProductTypeId");
 
                     b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
                         .WithMany()
                         .HasForeignKey("ServiceRegisteredFromId");
 
-                    b.Navigation("ProductGroup");
+                    b.Navigation("ProductType");
 
                     b.Navigation("ServiceRegisteredFrom");
                 });

@@ -14,7 +14,7 @@ namespace WareHouseManagement.Model.Entity.Product_Entity
         {
             Id = $"SP-{Nanoid.Generate(Nanoid.Alphabets.LowercaseLettersAndDigits, 5)}";
         }
-        public virtual ProductType? ProductGroup { get; set; }
+        public virtual ProductType? ProductType { get; set; }
         public virtual ICollection<VendorReplenishReceiptDetail>? VendorReplenishReceiptDetails { get; set; }
         public virtual ICollection<CustomerBuyReceiptDetail>? CustomerBuyReceiptDetails { get; set; }
         public virtual Stock? Stocks { get; set; }
