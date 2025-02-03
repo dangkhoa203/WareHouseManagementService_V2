@@ -8,6 +8,8 @@ namespace WareHouseManagement.Model.Receipt
         public string ProductId { get; set; }
         public string ReceiptId { get; set; }
         public int Quantity { get; set; }
+        public int PriceOfOne { get; set; }
+        public int TotalPrice { get; set; }
         public virtual Product ProductNav { get; set; }
         public virtual VendorReplenishReceipt ReceiptNav { get; set; }
      

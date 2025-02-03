@@ -12,5 +12,6 @@ namespace WareHouseManagement.Model.Form
         public DateTime OrderDate { get; set; }
         public string ReceiptId { get; set; }
         public virtual VendorReplenishReceipt Receipt { get; set; }
+        public virtual ICollection<ImportFormDetail>? Details { get; set; }
     }
 }

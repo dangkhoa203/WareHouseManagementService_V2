@@ -76,7 +76,12 @@ namespace WareHouseManagement.Data
                    .HasOne(s => s.ProductNav)
                    .WithOne(p => p.Stocks)
                    .HasForeignKey<Stock>(s => s.ProductId);
-            
+
+            builder.Entity<Stock>()
+                   .HasOne(s => s.WarehouseNav)
+                   .WithOne(p => p.Stocks)
+                   .HasForeignKey<Stock>(s => s.WarehouseId);
+
             builder.Entity<StockExportForm>()
                    .HasOne(f => f.Receipt)
                    .WithOne(r => r.StockExportReport)
@@ -88,6 +93,26 @@ namespace WareHouseManagement.Data
                    .WithOne(r => r.StockImportReport)
                    .HasForeignKey<StockImportForm>(f => f.ReceiptId)
                    .OnDelete(DeleteBehavior.ClientSetNull);
+            builder.Entity<ImportFormDetail>(entity => {
+                entity.HasKey(e => new { e.ProductId, e.FormId,e.WarehouseId });
+
+                entity.HasOne(d => d.ProductNav)
+                    .WithMany(p => p.ImportDetails)
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_importdetail_product");
+
+                entity.HasOne(d => d.FormNav)
+                    .WithMany(p => p.Details)
+                    .HasForeignKey(d => d.FormId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_FK_importdetail_form");
+                entity.HasOne(d => d.WarehouseNav)
+                   .WithMany(p => p.ImportDetails)
+                   .HasForeignKey(d => d.WarehouseNav)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_FK_importdetail_warehouse");
+            });
             base.OnModelCreating(builder);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -110,6 +135,7 @@ namespace WareHouseManagement.Data
         public virtual DbSet<VendorReplenishReceiptDetail> VendorReplenishReceiptDetails { get; set; }
         public virtual DbSet<Stock> Stocks { get; set; }
         public virtual DbSet<StockExportForm> StockExportReports { get; set; }
+        public virtual DbSet<ImportFormDetail> ImportDetails { get; set; }
         public virtual DbSet<StockImportForm> StockImportReports { get; set; }
 
 
