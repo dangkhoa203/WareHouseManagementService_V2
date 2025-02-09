@@ -26,7 +26,7 @@ namespace WareHouseManagement.Feature.VendorGroups
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPut("/api/Vendor-Groups", Handler).WithTags("VendorGroups");
+            app.MapPut("/api/Vendor-Groups", Handler).RequireAuthorization().WithTags("Vendor Groups");
         }
         private static async Task<IResult> Handler(
             Request request,
@@ -45,8 +45,8 @@ namespace WareHouseManagement.Feature.VendorGroups
                 .FirstOrDefault();
 
             var group = await context.VendorGroups
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
+                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(t => t.Id == request.id);
             if (group == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
 

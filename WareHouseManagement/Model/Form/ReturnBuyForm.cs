@@ -1,9 +1,10 @@
 ﻿using NanoidDotNet;
+using WareHouseManagement.Model.Entity;
 using WareHouseManagement.Model.Receipt;
 
 namespace WareHouseManagement.Model.Form
 {
-    public class ReturnBuyForm: FormGeneric
+    public class ReturnBuyForm: EntityGeneric
     {
         public ReturnBuyForm()
         {

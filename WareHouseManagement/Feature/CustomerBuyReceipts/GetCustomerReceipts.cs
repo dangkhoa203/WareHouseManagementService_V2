@@ -10,7 +10,7 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
         public record Response(bool success, List<receiptDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Customer-Receipts", Handler).WithTags("CustomerReceipts");
+            app.MapGet("/api/Customer-Receipts", Handler).RequireAuthorization().WithTags("Customer Receipts");
         }
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {

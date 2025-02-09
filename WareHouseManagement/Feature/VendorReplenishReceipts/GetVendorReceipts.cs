@@ -10,7 +10,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
         public record Response(bool success, List<receiptDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendor-Receipts", Handler).WithTags("VendorReceipts");
+            app.MapGet("/api/Vendor-Receipts", Handler).RequireAuthorization().WithTags("Vendor Receipts");
         }
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {

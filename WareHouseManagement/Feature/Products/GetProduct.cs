@@ -10,7 +10,7 @@ namespace WareHouseManagement.Feature.Products {
         public record Response(bool success, productDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Products/{id}", Handler).WithTags("Products");
+            app.MapGet("/api/Products/{id}", Handler).RequireAuthorization().WithTags("Products");
         }
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
@@ -22,6 +22,7 @@ namespace WareHouseManagement.Feature.Products {
                 var product = await context.Products
                     .Include(p => p.ProductType)
                     .Where(p => p.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(p => p.Id == id)
                     .OrderByDescending(p => p.CreatedDate)
                     .Select(p => new productDTO(
                         p.Id,
@@ -33,7 +34,7 @@ namespace WareHouseManagement.Feature.Products {
                         p.CreatedDate
                         )
                     )
-                    .FirstOrDefaultAsync(p => p.id == id);
+                    .FirstOrDefaultAsync();
                 return Results.Ok(new Response(true, product, ""));
             } catch (Exception ex) {
                 return Results.BadRequest(new Response(false,null, "Lỗi đã xảy ra!"));

@@ -19,6 +19,7 @@ namespace WareHouseManagement.Model.Entity.Product_Entity
         public virtual ICollection<VendorReplenishReceiptDetail>? VendorReplenishReceiptDetails { get; set; }
         public virtual ICollection<CustomerBuyReceiptDetail>? CustomerBuyReceiptDetails { get; set; }
         public virtual ICollection<ImportFormDetail>? ImportDetails { get; set; }
-        public virtual Stock? Stocks { get; set; }
+        public virtual ICollection<ExportFormDetail>? ExportDetails { get; set; }
+        public virtual ICollection<Stock> Stocks { get; set; }
     }
 }

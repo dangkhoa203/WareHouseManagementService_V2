@@ -9,7 +9,7 @@ namespace WareHouseManagement.Feature.Customers {
         public record Response(bool success, List<customerDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Customers/", Handler).WithTags("Customers");
+            app.MapGet("/api/Customers/", Handler).RequireAuthorization().WithTags("Customers");
         }
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {

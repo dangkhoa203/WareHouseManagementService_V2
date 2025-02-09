@@ -12,7 +12,7 @@ namespace WareHouseManagement.Feature.ProductTypes
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Product-Types", Handler).WithTags("ProductTypes");
+            app.MapGet("/api/Product-Types", Handler).RequireAuthorization().WithTags("Product Types");
         }
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user)
         {
@@ -24,9 +24,9 @@ namespace WareHouseManagement.Feature.ProductTypes
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
                 var types = await context.ProductTypes
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                    .OrderByDescending(g => g.CreatedDate)
-                    .Select(g => new typeDTO(g.Id, g.Name, g.Description, g.CreatedDate))
+                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                    .OrderByDescending(t => t.CreatedDate)
+                    .Select(t => new typeDTO(t.Id, t.Name, t.Description, t.CreatedDate))
                     .ToListAsync();
                 return Results.Ok(new Response(true, types, ""));
             }

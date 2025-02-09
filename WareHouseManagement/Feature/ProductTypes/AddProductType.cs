@@ -22,7 +22,7 @@ namespace WareHouseManagement.Feature.ProductTypes
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/Product-Types", Handler).WithTags("ProductTypes");
+            app.MapPost("/api/Product-Types", Handler).RequireAuthorization().WithTags("Product Types");
         }
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {

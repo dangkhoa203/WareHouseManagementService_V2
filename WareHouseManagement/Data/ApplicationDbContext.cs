@@ -6,6 +6,7 @@ using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Product_Entity;
 using WareHouseManagement.Model.Entity.Vendor_Entity;
 using WareHouseManagement.Model.Entity.Vendor_EntiTy;
+using WareHouseManagement.Model.Entity.Warehouse_Entity;
 using WareHouseManagement.Model.Form;
 using WareHouseManagement.Model.Receipt;
 namespace WareHouseManagement.Data
@@ -24,19 +25,19 @@ namespace WareHouseManagement.Data
             );
             builder.Entity<ProductType>(entity =>
             {
-                entity.HasMany(g => g.Products)
+                entity.HasMany(t => t.Products)
                       .WithOne(p => p.ProductType)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
             builder.Entity<CustomerGroup>(entity =>
             {
-                entity.HasMany(g => g.Customers)
+                entity.HasMany(t => t.Customers)
                       .WithOne(p => p.CustomerGroup)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
             builder.Entity<VendorGroup>(entity =>
             {
-                entity.HasMany(g => g.Vendors)
+                entity.HasMany(t => t.Vendors)
                       .WithOne(p => p.VendorGroup)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
@@ -72,15 +73,22 @@ namespace WareHouseManagement.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_orderdetail_receipt");
             });
-            builder.Entity<Stock>()
-                   .HasOne(s => s.ProductNav)
-                   .WithOne(p => p.Stocks)
-                   .HasForeignKey<Stock>(s => s.ProductId);
+            builder.Entity<Stock>(entity => {
+                entity.HasKey(e => new { e.ProductId, e.WarehouseId });
 
-            builder.Entity<Stock>()
-                   .HasOne(s => s.WarehouseNav)
-                   .WithOne(p => p.Stocks)
-                   .HasForeignKey<Stock>(s => s.WarehouseId);
+                entity.HasOne(s => s.ProductNav)
+                   .WithMany(p => p.Stocks)
+                   .HasForeignKey(s => s.ProductId)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_stock_product");
+
+                entity.HasOne(s => s.WarehouseNav)
+                   .WithMany(p => p.Stocks)
+                   .HasForeignKey(s => s.WarehouseId)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_warehouse_receipt");
+            });
+           
 
             builder.Entity<StockExportForm>()
                    .HasOne(f => f.Receipt)
@@ -106,12 +114,32 @@ namespace WareHouseManagement.Data
                     .WithMany(p => p.Details)
                     .HasForeignKey(d => d.FormId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_FK_importdetail_form");
+                    .HasConstraintName("FK_importdetail_form");
                 entity.HasOne(d => d.WarehouseNav)
                    .WithMany(p => p.ImportDetails)
-                   .HasForeignKey(d => d.WarehouseNav)
+                   .HasForeignKey(d => d.WarehouseId)
                    .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_FK_importdetail_warehouse");
+                   .HasConstraintName("FK_importdetail_warehouse");
+            });
+            builder.Entity<ImportFormDetail>(entity => {
+                entity.HasKey(e => new { e.ProductId, e.FormId, e.WarehouseId });
+
+                entity.HasOne(d => d.ProductNav)
+                    .WithMany(p => p.ImportDetails)
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_exportdetail_product");
+
+                entity.HasOne(d => d.FormNav)
+                    .WithMany(p => p.Details)
+                    .HasForeignKey(d => d.FormId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_exportdetail_form");
+                entity.HasOne(d => d.WarehouseNav)
+                   .WithMany(p => p.ImportDetails)
+                   .HasForeignKey(d => d.WarehouseId)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_exportdetail_warehouse");
             });
             base.OnModelCreating(builder);
         }
@@ -133,10 +161,12 @@ namespace WareHouseManagement.Data
         public virtual DbSet<VendorGroup> VendorGroups { get; set; }
         public virtual DbSet<VendorReplenishReceipt> VendorReplenishReceipts { get; set; }
         public virtual DbSet<VendorReplenishReceiptDetail> VendorReplenishReceiptDetails { get; set; }
+        public virtual DbSet<Warehouse> Warehouses { get; set; }
         public virtual DbSet<Stock> Stocks { get; set; }
-        public virtual DbSet<StockExportForm> StockExportReports { get; set; }
+        public virtual DbSet<ExportFormDetail> ExportDetails { get; set; }
+        public virtual DbSet<StockExportForm> StockExportForms { get; set; }
         public virtual DbSet<ImportFormDetail> ImportDetails { get; set; }
-        public virtual DbSet<StockImportForm> StockImportReports { get; set; }
+        public virtual DbSet<StockImportForm> StockImportForms { get; set; }
 
 
     }

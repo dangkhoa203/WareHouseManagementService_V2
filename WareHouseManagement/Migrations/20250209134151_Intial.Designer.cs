@@ -12,7 +12,7 @@ using WareHouseManagement.Data;
 namespace WareHouseManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250127173120_Intial")]
+    [Migration("20250209134151_Intial")]
     partial class Intial
     {
         /// <inheritdoc />
@@ -400,6 +400,9 @@ namespace WareHouseManagement.Migrations
                     b.Property<string>("ProductId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("WarehouseId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -407,9 +410,11 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("ProductId");
+                    b.HasKey("ProductId", "WarehouseId");
 
                     b.HasIndex("ServiceRegisteredFromId");
+
+                    b.HasIndex("WarehouseId");
 
                     b.ToTable("Stocks");
                 });
@@ -493,6 +498,66 @@ namespace WareHouseManagement.Migrations
                     b.ToTable("VendorGroups");
                 });
 
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ServiceRegisteredFromId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRegisteredFromId");
+
+                    b.ToTable("Warehouses");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Form.ImportFormDetail", b =>
+                {
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FormId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("WarehouseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "FormId", "WarehouseId");
+
+                    b.HasIndex("FormId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("ImportDetails");
+                });
+
             modelBuilder.Entity("WareHouseManagement.Model.Form.StockExportForm", b =>
                 {
                     b.Property<string>("Id")
@@ -500,6 +565,12 @@ namespace WareHouseManagement.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
@@ -519,7 +590,7 @@ namespace WareHouseManagement.Migrations
 
                     b.HasIndex("ServiceRegisteredFromId");
 
-                    b.ToTable("StockExportReports");
+                    b.ToTable("StockExportForms");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Form.StockImportForm", b =>
@@ -530,8 +601,14 @@ namespace WareHouseManagement.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("OrderDate")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ImportDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ReceiptId")
                         .IsRequired()
@@ -548,7 +625,7 @@ namespace WareHouseManagement.Migrations
 
                     b.HasIndex("ServiceRegisteredFromId");
 
-                    b.ToTable("StockImportReports");
+                    b.ToTable("StockImportForms");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.CustomerBuyReceipt", b =>
@@ -591,7 +668,13 @@ namespace WareHouseManagement.Migrations
                     b.Property<string>("ReceiptId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("PriceOfOne")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPrice")
                         .HasColumnType("int");
 
                     b.HasKey("ProductId", "ReceiptId");
@@ -642,7 +725,13 @@ namespace WareHouseManagement.Migrations
                     b.Property<string>("ReceiptId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("PriceOfOne")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPrice")
                         .HasColumnType("int");
 
                     b.HasKey("ProductId", "ReceiptId");
@@ -765,10 +854,10 @@ namespace WareHouseManagement.Migrations
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Stock", b =>
                 {
                     b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.Product", "ProductNav")
-                        .WithOne("Stocks")
-                        .HasForeignKey("WareHouseManagement.Model.Entity.Stock", "ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Stocks")
+                        .HasForeignKey("ProductId")
+                        .IsRequired()
+                        .HasConstraintName("FK_stock_product");
 
                     b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
                         .WithMany()
@@ -776,9 +865,17 @@ namespace WareHouseManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", "WarehouseNav")
+                        .WithMany("Stocks")
+                        .HasForeignKey("WarehouseId")
+                        .IsRequired()
+                        .HasConstraintName("FK_warehouse_receipt");
+
                     b.Navigation("ProductNav");
 
                     b.Navigation("ServiceRegisteredFrom");
+
+                    b.Navigation("WarehouseNav");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_EntiTy.Vendor", b =>
@@ -807,6 +904,44 @@ namespace WareHouseManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("ServiceRegisteredFrom");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", b =>
+                {
+                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
+                        .WithMany()
+                        .HasForeignKey("ServiceRegisteredFromId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRegisteredFrom");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Form.ImportFormDetail", b =>
+                {
+                    b.HasOne("WareHouseManagement.Model.Form.StockImportForm", "FormNav")
+                        .WithMany("Details")
+                        .HasForeignKey("FormId")
+                        .IsRequired()
+                        .HasConstraintName("FK_FK_importdetail_form");
+
+                    b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.Product", "ProductNav")
+                        .WithMany("ImportDetails")
+                        .HasForeignKey("ProductId")
+                        .IsRequired()
+                        .HasConstraintName("FK_importdetail_product");
+
+                    b.HasOne("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", "WarehouseNav")
+                        .WithMany("ImportDetails")
+                        .HasForeignKey("WarehouseId")
+                        .IsRequired()
+                        .HasConstraintName("FK_FK_importdetail_warehouse");
+
+                    b.Navigation("FormNav");
+
+                    b.Navigation("ProductNav");
+
+                    b.Navigation("WarehouseNav");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Form.StockExportForm", b =>
@@ -929,6 +1064,8 @@ namespace WareHouseManagement.Migrations
                 {
                     b.Navigation("CustomerBuyReceiptDetails");
 
+                    b.Navigation("ImportDetails");
+
                     b.Navigation("Stocks");
 
                     b.Navigation("VendorReplenishReceiptDetails");
@@ -952,6 +1089,18 @@ namespace WareHouseManagement.Migrations
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_Entity.VendorGroup", b =>
                 {
                     b.Navigation("Vendors");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", b =>
+                {
+                    b.Navigation("ImportDetails");
+
+                    b.Navigation("Stocks");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Form.StockImportForm", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.CustomerBuyReceipt", b =>

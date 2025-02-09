@@ -14,7 +14,7 @@ namespace WareHouseManagement.Feature.Customers
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Customers/{id}", Handler).WithTags("Customers");
+            app.MapGet("/api/Customers/{id}", Handler).RequireAuthorization().WithTags("Customers");
         }
         private static async Task<IResult> Handler([FromRoute]string id,ApplicationDbContext context, ClaimsPrincipal user)
         {
@@ -28,6 +28,7 @@ namespace WareHouseManagement.Feature.Customers
                 var customer = await context.Customers
                     .Include(c => c.CustomerGroup)
                     .Where(c => c.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(c => c.Id == id)
                     .Select(c => new customerDTO(
 
                         c.Id,
@@ -40,7 +41,7 @@ namespace WareHouseManagement.Feature.Customers
                         c.CreatedDate
 
                      ))
-                    .FirstOrDefaultAsync(c=>c.id==id);
+                    .FirstOrDefaultAsync();
                 if (customer != null)
                     return Results.Ok(new Response(true, customer, ""));
                 return Results.NotFound(new Response(false, null, "Không tìm thấy dữ liệu!"));

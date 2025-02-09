@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 
-namespace WareHouseManagement.Feature.Vendors {
-    public class GetVendors : IEndpoint {
-        public record vendorDTO(string id, string name, string email, string address, string phoneNumber, string groupName, DateTime createDate);
-        public record Response(bool success, List<vendorDTO> data, string errorMessage);
+namespace WareHouseManagement.Feature.Warehouses {
+    public class GetWarehouses : IEndpoint {
+        public record warehouseDTO(string id, string name, string address, string city, DateTime createDate);
+        public record Response(bool success, List<warehouseDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendors/", Handler).RequireAuthorization().WithTags("Vendors");
+            app.MapGet("/api/Warehouses/", Handler).RequireAuthorization().WithTags("Warehouses");
         }
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
@@ -18,22 +18,19 @@ namespace WareHouseManagement.Feature.Vendors {
                     .Where(u => u.UserName == user.Identity.Name)
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
-                var vendors = await context.Vendors
-                    .Include(v => v.VendorGroup)
+                var warehouse = await context.Warehouses
                     .Where(v => v.ServiceRegisteredFrom.Id == service.Id)
                     .OrderByDescending(v => v.CreatedDate)
-                    .Select(v => new vendorDTO(
+                    .Select(v => new warehouseDTO(
                         v.Id,
                         v.Name,
-                        v.Email,
                         v.Address,
-                        v.PhoneNumber,
-                        (v.VendorGroup != null ? v.VendorGroup.Name : ""),
+                        v.City,
                         v.CreatedDate
                         )
                     )
                     .ToListAsync();
-                return Results.Ok(new Response(true, vendors, ""));
+                return Results.Ok(new Response(true, warehouse, ""));
             } catch (Exception ex) {
                 return Results.BadRequest(new Response(false, [], "Lỗi đã xảy ra!"));
             }

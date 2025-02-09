@@ -6,36 +6,27 @@ using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 
-namespace WareHouseManagement.Feature.CustomerGroups
-{
-    public class UpdateCustomerGroup : IEndpoint
-    {
+namespace WareHouseManagement.Feature.CustomerGroups {
+    public class UpdateCustomerGroup : IEndpoint {
         public record Request(string id, string name, string description);
         public record Response(bool success, string errorMessage, ValidationResult? error);
-        public sealed class Validator : AbstractValidator<Request>
-        {
-            public Validator()
-            {
+        public sealed class Validator : AbstractValidator<Request> {
+            public Validator() {
                 RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
             }
             public bool checkSame(Request request, CustomerGroup group) {
-               return (request.name==group.Name && request.description==group.Description);
+                return (request.name == group.Name && request.description == group.Description);
             }
         }
-        public static void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPut("/api/Customer-Groups", Handler).WithTags("CustomerGroups");
+        public static void MapEndpoint(IEndpointRouteBuilder app) {
+            app.MapPut("/api/Customer-Groups", Handler).RequireAuthorization().WithTags("Customer Groups");
         }
-        private static async Task<IResult> Handler(
-            Request request,
-            ApplicationDbContext context,
-            ClaimsPrincipal user)
-        {
+        private static async Task<IResult> Handler(Request request,ApplicationDbContext context,ClaimsPrincipal user) {
             var validator = new Validator();
             var validatedresult = validator.Validate(request);
             if (!validatedresult.IsValid)
                 return Results.BadRequest(new Response(false, "", validatedresult));
-            
+
             var service = context.Users
                 .Include(u => u.ServiceRegistered)
                 .Where(u => u.UserName == user.Identity.Name)
@@ -43,18 +34,16 @@ namespace WareHouseManagement.Feature.CustomerGroups
                 .FirstOrDefault();
 
             var group = await context.CustomerGroups
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .Include(g=>g.Customers)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
+                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                .Include(t => t.Customers)
+                .FirstOrDefaultAsync(t => t.Id == request.id);
             if (group == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
-            
-            if(!validator.checkSame(request, group))
-            {
+
+            if (!validator.checkSame(request, group)) {
                 group.Name = request.name;
                 group.Description = request.description;
-                if (await context.SaveChangesAsync() < 1)
-                {
+                if (await context.SaveChangesAsync() < 1) {
                     return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
                 }
             }

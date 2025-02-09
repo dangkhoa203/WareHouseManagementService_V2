@@ -7,14 +7,14 @@ using WareHouseManagement.Endpoint;
 
 namespace WareHouseManagement.Feature.CustomerGroups
 {
-    public class GetCutomerGroup:IEndpoint
+    public class GetCustomerGroup:IEndpoint
     {
         public record groupDTO(string id, string name, string description, DateTime createDate);
         public record Response(bool success, groupDTO? data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Customer-Groups/{id}", Handler).WithTags("CustomerGroups");
+            app.MapGet("/api/Customer-Groups/{id}", Handler).RequireAuthorization().WithTags("Customer Groups");
         }
         private static async Task<IResult> Handler([FromRoute]string id,ApplicationDbContext context, ClaimsPrincipal user)
         {
@@ -26,10 +26,10 @@ namespace WareHouseManagement.Feature.CustomerGroups
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
                 var group = await context.CustomerGroups
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                    .OrderByDescending(g => g.CreatedDate)
-                    .Where(g=>g.Id==id)
-                    .Select(g => new groupDTO(g.Id, g.Name, g.Description, g.CreatedDate))
+                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                    .OrderByDescending(t => t.CreatedDate)
+                    .Where(t=>t.Id==id)
+                    .Select(t => new groupDTO(t.Id, t.Name, t.Description, t.CreatedDate))
                     .FirstOrDefaultAsync();
                 if (group != null)
                     return Results.Ok(new Response(true, group, ""));

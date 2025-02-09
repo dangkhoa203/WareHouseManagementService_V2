@@ -6,7 +6,6 @@ namespace WareHouseManagement.Model.Entity
 {
     public class Stock
     {
-        [Key]
         public string ProductId { get; set; }
         public Product ProductNav { get; set; }
         public string WarehouseId { get; set; }

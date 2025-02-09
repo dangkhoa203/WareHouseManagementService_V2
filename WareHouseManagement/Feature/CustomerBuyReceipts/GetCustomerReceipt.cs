@@ -11,7 +11,7 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
         public record Response(bool success, receiptDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Customer-Receipts/{id}", Handler).WithTags("CustomerReceipts");
+            app.MapGet("/api/Customer-Receipts/{id}", Handler).RequireAuthorization().WithTags("Customer Receipts");
         }
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
@@ -25,7 +25,7 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
                     .ThenInclude(d => d.ProductNav)
                     .Include(r => r.Customer)
                     .ThenInclude(c => c.CustomerGroup)
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
                     .Where(r => !r.IsDeleted)
                     .FirstOrDefaultAsync(r => r.Id == id);
                 if (Receipt != null) {

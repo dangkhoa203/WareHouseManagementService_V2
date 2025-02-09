@@ -12,7 +12,7 @@ namespace WareHouseManagement.Feature.VendorGroups
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapDelete("/api/Vendor-Groups/", Handler).WithTags("VendorGroups");
+            app.MapDelete("/api/Vendor-Groups/", Handler).RequireAuthorization().WithTags("Vendor Groups");
         }
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {
@@ -22,8 +22,8 @@ namespace WareHouseManagement.Feature.VendorGroups
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var group = await context.VendorGroups
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
+                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(t => t.Id == request.id);
             if (group != null)
             {
                 context.VendorGroups.Remove(group);

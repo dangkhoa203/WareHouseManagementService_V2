@@ -9,7 +9,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
         public record Request(string id);
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapDelete("/api/Vendor-Receipts/", Handler).RequireAuthorization().WithTags("VendorReceipts");
+            app.MapDelete("/api/Vendor-Receipts/", Handler).RequireAuthorization().RequireAuthorization().WithTags("Vendor Receipts");
         }
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users
@@ -18,8 +18,8 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var receipt = await context.VendorReplenishReceipts
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
+                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(t => t.Id == request.id);
             if (receipt != null) {
                 receipt.IsDeleted = true;
                 var result = await context.SaveChangesAsync();

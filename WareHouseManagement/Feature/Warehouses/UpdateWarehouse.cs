@@ -4,27 +4,27 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Vendor_EntiTy;
+using WareHouseManagement.Model.Entity.Warehouse_Entity;
 
-namespace WareHouseManagement.Feature.Vendors {
-    public class UpdateVendor : IEndpoint {
-        public record Request(string id, string name, string address, string email, string phone, string? groupId);
+namespace WareHouseManagement.Feature.Warehouses {
+    public class UpdateWarehouse:IEndpoint {
+        public record Request(string id, string name, string address, string city);
         public record Response(bool success, string errorMessage, ValidationResult? error);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
                 RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
             }
-            private record checkmodel(string name, string address, string email, string phone, string? groupId);
-            public bool checkSame(Request request, Vendor vendor) {
-                checkmodel newDetail = new checkmodel(request.name, request.address, request.email, request.phone, request.groupId);
-                checkmodel oldDetail = new checkmodel(vendor.Name, vendor.Address, vendor.Email, vendor.PhoneNumber, vendor.VendorGroup != null ? vendor.VendorGroup.Id : "");
+            private record checkmodel(string name, string address, string city);
+            public bool checkSame(Request request, Warehouse warehouse) {
+                checkmodel newDetail = new checkmodel(request.name, request.address, request.city);
+                checkmodel oldDetail = new checkmodel(warehouse.Name, warehouse.Address, warehouse.City);
                 return oldDetail == newDetail;
 
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPut("/api/Vendors", Handler).RequireAuthorization().WithTags("Vendors");
+            app.MapPut("/api/Warehouses", Handler).RequireAuthorization().WithTags("Warehouses");
         }
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
 
@@ -34,19 +34,16 @@ namespace WareHouseManagement.Feature.Vendors {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
             var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
-            var vendor = await context.Vendors
-                .Include(c => c.VendorGroup)
+            var warehouse = await context.Warehouses
                 .Where(c => c.ServiceRegisteredFrom.Id == service.Id)
                 .FirstOrDefaultAsync(c => c.Id == request.id);
-            if (vendor == null)
+            if (warehouse == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
 
-            if (!validator.checkSame(request, vendor)) {
-                vendor.Name = request.name;
-                vendor.Email = request.email;
-                vendor.PhoneNumber = request.phone;
-                vendor.Address = request.address;
-                vendor.VendorGroup = await context.VendorGroups.FindAsync(request.groupId);
+            if (!validator.checkSame(request, warehouse)) {
+                warehouse.Name = request.name;
+                warehouse.City = request.city;
+                warehouse.Address = request.address;
                 if (await context.SaveChangesAsync() < 1) {
                     return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
                 }

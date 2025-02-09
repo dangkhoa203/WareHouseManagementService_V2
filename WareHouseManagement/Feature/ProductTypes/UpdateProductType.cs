@@ -26,7 +26,7 @@ namespace WareHouseManagement.Feature.ProductTypes
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPut("/api/Product-Types", Handler).WithTags("ProductTypes");
+            app.MapPut("/api/Product-Types", Handler).RequireAuthorization().WithTags("Product Types");
         }
         private static async Task<IResult> Handler(
             Request request,
@@ -45,8 +45,8 @@ namespace WareHouseManagement.Feature.ProductTypes
                 .FirstOrDefault();
 
             var types = await context.ProductTypes
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
+                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(t => t.Id == request.id);
             if (types == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
 

@@ -1,15 +1,15 @@
-﻿using System.Security.Claims;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity.Customer_Entity;
-using WareHouseManagement.Model.Entity;
-using Microsoft.EntityFrameworkCore;
-using FluentValidation;
-using FluentValidation.Results;
+using WareHouseManagement.Model.Entity.Vendor_EntiTy;
+using WareHouseManagement.Model.Entity.Warehouse_Entity;
 
-namespace WareHouseManagement.Feature.CustomerGroups {
-    public class AddCustomerGroup : IEndpoint {
-        public record Request(string name, string description);
+namespace WareHouseManagement.Feature.Warehouses {
+    public class AddWarehouse : IEndpoint {
+        public record Request(string name, string address, string city);
         public record Response(bool success, string errorMessage, ValidationResult? error);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
@@ -17,7 +17,7 @@ namespace WareHouseManagement.Feature.CustomerGroups {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Customer-Groups", Handler).RequireAuthorization().WithTags("Customer Groups");
+            app.MapPost("/api/Warehouses", Handler).RequireAuthorization().WithTags("Warehouses");
         }
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
@@ -26,12 +26,13 @@ namespace WareHouseManagement.Feature.CustomerGroups {
             if (!validatedresult.IsValid) {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            CustomerGroup customerGroup = new() {
+            var warehouse = new Warehouse() {
                 Name = request.name,
-                Description = request.description,
-                ServiceRegisteredFrom = service,
+                Address = request.address,
+                City = request.city,
+                ServiceRegisteredFrom = service
             };
-            await context.CustomerGroups.AddAsync(customerGroup);
+            await context.Warehouses.AddAsync(warehouse);
             if (await context.SaveChangesAsync() > 0) {
                 return Results.Ok(new Response(true, "", validatedresult));
             }

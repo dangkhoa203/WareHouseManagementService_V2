@@ -76,7 +76,7 @@ namespace WareHouseManagement.Feature.Accounts
                 //    return Results.BadRequest(new Response(false,"Lỗi đã xảy ra!",validateresult));
                 //}
                 createduser.EmailConfirmed=true;
-
+                await context.SaveChangesAsync();
                 return Results.Ok(new Response(true,"", validateresult));
             }
             return Results.BadRequest(new Response(false,"Lỗi đã xảy ra", validateresult));

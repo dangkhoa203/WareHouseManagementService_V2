@@ -22,7 +22,7 @@ namespace WareHouseManagement.Feature.VendorGroups
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/Vendor-Groups", Handler).WithTags("VendorGroups");
+            app.MapPost("/api/Vendor-Groups", Handler).RequireAuthorization().WithTags("Vendor Groups");
         }
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {

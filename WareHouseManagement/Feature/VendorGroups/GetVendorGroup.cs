@@ -12,7 +12,7 @@ namespace WareHouseManagement.Feature.VendorGroups
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Vendor-Groups/{id}", Handler).WithTags("VendorGroups");
+            app.MapGet("/api/Vendor-Groups/{id}", Handler).RequireAuthorization().WithTags("Vendor Groups");
         }
         private static async Task<IResult> Handler(string id,ApplicationDbContext context, ClaimsPrincipal user)
         {
@@ -24,10 +24,9 @@ namespace WareHouseManagement.Feature.VendorGroups
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
                 var group = await context.VendorGroups
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                    .OrderByDescending(g => g.CreatedDate)
-                    .Where(g => g.Id == id)
-                    .Select(g => new groupDTO(g.Id, g.Name, g.Description, g.CreatedDate))
+                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(t => t.Id == id)
+                    .Select(t => new groupDTO(t.Id, t.Name, t.Description, t.CreatedDate))
                     .FirstOrDefaultAsync();
                 if (group != null)
                     return Results.Ok(new Response(true, group, ""));

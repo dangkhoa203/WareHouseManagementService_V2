@@ -17,7 +17,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Vendor-Receipts", Handler).WithTags("VendorReceipts");
+            app.MapPost("/api/Vendor-Receipts", Handler).RequireAuthorization().WithTags("Vendor Receipts");
         }
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var validator = new Validator();

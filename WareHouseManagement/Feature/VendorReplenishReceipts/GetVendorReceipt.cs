@@ -11,7 +11,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
         public record Response(bool success, receiptDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendor-Receipts/{id}", Handler).WithTags("VendorReceipts");
+            app.MapGet("/api/Vendor-Receipts/{id}", Handler).RequireAuthorization().WithTags("Vendor Receipts");
         }
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
@@ -25,7 +25,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
                     .ThenInclude(d => d.ProductNav)
                     .Include(r => r.Vendor)
                     .ThenInclude(c => c.VendorGroup)
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
                     .Where(r => !r.IsDeleted)
                     .FirstOrDefaultAsync(r => r.Id == id);
                 if (Receipt != null) {
@@ -35,7 +35,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
                         Receipt.Vendor.Email,
                         Receipt.Vendor.Address,
                         Receipt.Vendor.PhoneNumber,
-                        Receipt.Vendor.VendorGroup.Name
+                        Receipt.Vendor.VendorGroup !=null ? Receipt.Vendor.VendorGroup.Name :null
                     );
                     var details = Receipt.Details
                     .Select(

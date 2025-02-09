@@ -159,6 +159,30 @@ namespace WareHouseManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Warehouses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Warehouses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Warehouses_ServiceRegistereds_ServiceRegisteredFromId",
+                        column: x => x.ServiceRegisteredFromId,
+                        principalTable: "ServiceRegistereds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -365,24 +389,29 @@ namespace WareHouseManagement.Migrations
                 columns: table => new
                 {
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    WarehouseId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Stocks", x => x.ProductId);
-                    table.ForeignKey(
-                        name: "FK_Stocks_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_Stocks", x => new { x.ProductId, x.WarehouseId });
                     table.ForeignKey(
                         name: "FK_Stocks_ServiceRegistereds_ServiceRegisteredFromId",
                         column: x => x.ServiceRegisteredFromId,
                         principalTable: "ServiceRegistereds",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_stock_product",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_warehouse_receipt",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouses",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -419,7 +448,9 @@ namespace WareHouseManagement.Migrations
                 {
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    PriceOfOne = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -437,25 +468,27 @@ namespace WareHouseManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StockExportReports",
+                name: "StockExportForms",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StockExportReports", x => x.Id);
+                    table.PrimaryKey("PK_StockExportForms", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StockExportReports_CustomerBuyReceipts_ReceiptId",
+                        name: "FK_StockExportForms_CustomerBuyReceipts_ReceiptId",
                         column: x => x.ReceiptId,
                         principalTable: "CustomerBuyReceipts",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_StockExportReports_ServiceRegistereds_ServiceRegisteredFromId",
+                        name: "FK_StockExportForms_ServiceRegistereds_ServiceRegisteredFromId",
                         column: x => x.ServiceRegisteredFromId,
                         principalTable: "ServiceRegistereds",
                         principalColumn: "Id",
@@ -463,26 +496,28 @@ namespace WareHouseManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StockImportReports",
+                name: "StockImportForms",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StockImportReports", x => x.Id);
+                    table.PrimaryKey("PK_StockImportForms", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StockImportReports_ServiceRegistereds_ServiceRegisteredFromId",
+                        name: "FK_StockImportForms_ServiceRegistereds_ServiceRegisteredFromId",
                         column: x => x.ServiceRegisteredFromId,
                         principalTable: "ServiceRegistereds",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StockImportReports_VendorReplenishReceipts_ReceiptId",
+                        name: "FK_StockImportForms_VendorReplenishReceipts_ReceiptId",
                         column: x => x.ReceiptId,
                         principalTable: "VendorReplenishReceipts",
                         principalColumn: "Id");
@@ -494,7 +529,9 @@ namespace WareHouseManagement.Migrations
                 {
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    PriceOfOne = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -508,6 +545,35 @@ namespace WareHouseManagement.Migrations
                         name: "FK_replenishdetail_receipt",
                         column: x => x.ReceiptId,
                         principalTable: "VendorReplenishReceipts",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImportDetails",
+                columns: table => new
+                {
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FormId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    WarehouseId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportDetails", x => new { x.ProductId, x.FormId, x.WarehouseId });
+                    table.ForeignKey(
+                        name: "FK_FK_importdetail_form",
+                        column: x => x.FormId,
+                        principalTable: "StockImportForms",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FK_importdetail_warehouse",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_importdetail_product",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
                         principalColumn: "Id");
                 });
 
@@ -586,6 +652,16 @@ namespace WareHouseManagement.Migrations
                 column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ImportDetails_FormId",
+                table: "ImportDetails",
+                column: "FormId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ImportDetails_WarehouseId",
+                table: "ImportDetails",
+                column: "WarehouseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_ProductTypeId",
                 table: "Products",
                 column: "ProductTypeId");
@@ -601,31 +677,36 @@ namespace WareHouseManagement.Migrations
                 column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockExportReports_ReceiptId",
-                table: "StockExportReports",
+                name: "IX_StockExportForms_ReceiptId",
+                table: "StockExportForms",
                 column: "ReceiptId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockExportReports_ServiceRegisteredFromId",
-                table: "StockExportReports",
+                name: "IX_StockExportForms_ServiceRegisteredFromId",
+                table: "StockExportForms",
                 column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockImportReports_ReceiptId",
-                table: "StockImportReports",
+                name: "IX_StockImportForms_ReceiptId",
+                table: "StockImportForms",
                 column: "ReceiptId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockImportReports_ServiceRegisteredFromId",
-                table: "StockImportReports",
+                name: "IX_StockImportForms_ServiceRegisteredFromId",
+                table: "StockImportForms",
                 column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Stocks_ServiceRegisteredFromId",
                 table: "Stocks",
                 column: "ServiceRegisteredFromId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Stocks_WarehouseId",
+                table: "Stocks",
+                column: "WarehouseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendorGroups_ServiceRegisteredFromId",
@@ -656,6 +737,11 @@ namespace WareHouseManagement.Migrations
                 name: "IX_Vendors_VendorGroupId",
                 table: "Vendors",
                 column: "VendorGroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Warehouses_ServiceRegisteredFromId",
+                table: "Warehouses",
+                column: "ServiceRegisteredFromId");
         }
 
         /// <inheritdoc />
@@ -680,10 +766,10 @@ namespace WareHouseManagement.Migrations
                 name: "CustomerBuyReceiptDetails");
 
             migrationBuilder.DropTable(
-                name: "StockExportReports");
+                name: "ImportDetails");
 
             migrationBuilder.DropTable(
-                name: "StockImportReports");
+                name: "StockExportForms");
 
             migrationBuilder.DropTable(
                 name: "Stocks");
@@ -698,7 +784,13 @@ namespace WareHouseManagement.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "StockImportForms");
+
+            migrationBuilder.DropTable(
                 name: "CustomerBuyReceipts");
+
+            migrationBuilder.DropTable(
+                name: "Warehouses");
 
             migrationBuilder.DropTable(
                 name: "Products");
