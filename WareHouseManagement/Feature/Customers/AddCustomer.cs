@@ -9,6 +9,8 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Customers
 {
@@ -25,8 +27,9 @@ namespace WareHouseManagement.Feature.Customers
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/Customers", Handler).RequireAuthorization().WithTags("Customers");
+            app.MapPost("/api/Customers", Handler).WithTags("Customers");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {
             var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();

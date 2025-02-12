@@ -6,6 +6,8 @@ using WareHouseManagement.Model.Entity;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.CustomerGroups {
     public class AddCustomerGroup : IEndpoint {
@@ -17,8 +19,9 @@ namespace WareHouseManagement.Feature.CustomerGroups {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Customer-Groups", Handler).RequireAuthorization().WithTags("Customer Groups");
+            app.MapPost("/api/Customer-Groups", Handler).WithTags("Customer Groups");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
             var validator = new Validator();

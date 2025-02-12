@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Product_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Products {
     public class UpdateProduct {
@@ -24,8 +26,9 @@ namespace WareHouseManagement.Feature.Products {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPut("/api/Products", Handler).RequireAuthorization().WithTags("Products");
+            app.MapPut("/api/Products", Handler).WithTags("Products");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
 
             var validator = new Validator();

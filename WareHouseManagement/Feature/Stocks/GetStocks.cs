@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Stocks {
     public class GetStocks:IEndpoint {
@@ -9,8 +11,9 @@ namespace WareHouseManagement.Feature.Stocks {
         public record Response(bool success, List<stockDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Stocks", Handler).RequireAuthorization().WithTags("Stocks");
+            app.MapGet("/api/Stocks", Handler).WithTags("Stocks");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 using WareHouseManagement.Model.Form;
 using WareHouseManagement.Model.Receipt;
 
@@ -19,8 +21,9 @@ namespace WareHouseManagement.Feature.ImportForm {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Import-Forms", Handler).RequireAuthorization().WithTags("Import Forms");
+            app.MapPost("/api/Import-Forms", Handler).WithTags("Import Forms");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var validator = new Validator();
             var validatedresult = validator.Validate(request);

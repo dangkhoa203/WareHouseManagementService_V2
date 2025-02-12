@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.ImportForm {
     public class RemoveImportForm:IEndpoint {
         public record Request(string id);
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapDelete("/api/Import-Forms/", Handler).RequireAuthorization().WithTags("Import Forms");
+            app.MapDelete("/api/Import-Forms/", Handler).WithTags("Import Forms");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users
                 .Include(u => u.ServiceRegistered)

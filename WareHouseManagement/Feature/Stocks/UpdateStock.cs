@@ -1,17 +1,20 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Customer_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Stocks {
     public class UpdateStock:IEndpoint {
         public record Request(string productID, string warehouseId, int quantity);
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPut("/api/Stocks", Handler).RequireAuthorization().WithTags("Stocks");
+            app.MapPut("/api/Stocks", Handler).WithTags("Stocks");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users
                 .Include(u => u.ServiceRegistered)

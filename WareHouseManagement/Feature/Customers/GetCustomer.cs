@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Customers
 {
@@ -14,8 +16,9 @@ namespace WareHouseManagement.Feature.Customers
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Customers/{id}", Handler).RequireAuthorization().WithTags("Customers");
+            app.MapGet("/api/Customers/{id}", Handler).WithTags("Customers");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler([FromRoute]string id,ApplicationDbContext context, ClaimsPrincipal user)
         {
             try

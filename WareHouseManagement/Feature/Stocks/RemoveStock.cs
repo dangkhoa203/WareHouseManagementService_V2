@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Stocks {
     public class RemoveStock:IEndpoint {
         public record Request(string productId,string warehouseId);
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapDelete("/api/Stocks/", Handler).RequireAuthorization().WithTags("Stocks");
+            app.MapDelete("/api/Stocks/", Handler).WithTags("Stocks");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users
                 .Include(u => u.ServiceRegistered)

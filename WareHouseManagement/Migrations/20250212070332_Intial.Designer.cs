@@ -12,7 +12,7 @@ using WareHouseManagement.Data;
 namespace WareHouseManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250209134151_Intial")]
+    [Migration("20250212070332_Intial")]
     partial class Intial
     {
         /// <inheritdoc />
@@ -221,6 +221,9 @@ namespace WareHouseManagement.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<bool>("isAdmin")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -390,6 +393,10 @@ namespace WareHouseManagement.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("ServiceRegistereds");
@@ -535,6 +542,29 @@ namespace WareHouseManagement.Migrations
                     b.ToTable("Warehouses");
                 });
 
+            modelBuilder.Entity("WareHouseManagement.Model.Form.ExportFormDetail", b =>
+                {
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FormId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("WarehouseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "FormId", "WarehouseId");
+
+                    b.HasIndex("FormId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("ExportDetails");
+                });
+
             modelBuilder.Entity("WareHouseManagement.Model.Form.ImportFormDetail", b =>
                 {
                     b.Property<string>("ProductId")
@@ -569,11 +599,11 @@ namespace WareHouseManagement.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("ExportDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("ReceiptId")
                         .IsRequired()
@@ -917,13 +947,40 @@ namespace WareHouseManagement.Migrations
                     b.Navigation("ServiceRegisteredFrom");
                 });
 
+            modelBuilder.Entity("WareHouseManagement.Model.Form.ExportFormDetail", b =>
+                {
+                    b.HasOne("WareHouseManagement.Model.Form.StockExportForm", "FormNav")
+                        .WithMany("Details")
+                        .HasForeignKey("FormId")
+                        .IsRequired()
+                        .HasConstraintName("FK_exportdetail_form");
+
+                    b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.Product", "ProductNav")
+                        .WithMany("ExportDetails")
+                        .HasForeignKey("ProductId")
+                        .IsRequired()
+                        .HasConstraintName("FK_exportdetail_product");
+
+                    b.HasOne("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", "WarehouseNav")
+                        .WithMany("ExportDetails")
+                        .HasForeignKey("WarehouseId")
+                        .IsRequired()
+                        .HasConstraintName("FK_exportdetail_warehouse");
+
+                    b.Navigation("FormNav");
+
+                    b.Navigation("ProductNav");
+
+                    b.Navigation("WarehouseNav");
+                });
+
             modelBuilder.Entity("WareHouseManagement.Model.Form.ImportFormDetail", b =>
                 {
                     b.HasOne("WareHouseManagement.Model.Form.StockImportForm", "FormNav")
                         .WithMany("Details")
                         .HasForeignKey("FormId")
                         .IsRequired()
-                        .HasConstraintName("FK_FK_importdetail_form");
+                        .HasConstraintName("FK_importdetail_form");
 
                     b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.Product", "ProductNav")
                         .WithMany("ImportDetails")
@@ -935,7 +992,7 @@ namespace WareHouseManagement.Migrations
                         .WithMany("ImportDetails")
                         .HasForeignKey("WarehouseId")
                         .IsRequired()
-                        .HasConstraintName("FK_FK_importdetail_warehouse");
+                        .HasConstraintName("FK_importdetail_warehouse");
 
                     b.Navigation("FormNav");
 
@@ -1064,6 +1121,8 @@ namespace WareHouseManagement.Migrations
                 {
                     b.Navigation("CustomerBuyReceiptDetails");
 
+                    b.Navigation("ExportDetails");
+
                     b.Navigation("ImportDetails");
 
                     b.Navigation("Stocks");
@@ -1093,9 +1152,16 @@ namespace WareHouseManagement.Migrations
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", b =>
                 {
+                    b.Navigation("ExportDetails");
+
                     b.Navigation("ImportDetails");
 
                     b.Navigation("Stocks");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Form.StockExportForm", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Form.StockImportForm", b =>

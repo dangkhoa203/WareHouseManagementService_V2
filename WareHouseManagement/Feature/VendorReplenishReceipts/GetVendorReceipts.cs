@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.VendorReplenishReceipts {
     public class GetVendorReceipts:IEndpoint {
@@ -10,8 +12,9 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
         public record Response(bool success, List<receiptDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendor-Receipts", Handler).RequireAuthorization().WithTags("Vendor Receipts");
+            app.MapGet("/api/Vendor-Receipts", Handler).WithTags("Vendor Receipts");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.VendorReceipt)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

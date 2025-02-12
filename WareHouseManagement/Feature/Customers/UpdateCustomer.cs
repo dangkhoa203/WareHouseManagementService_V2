@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Customer_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Customers {
     public class UpdateCustomer : IEndpoint {
@@ -23,8 +25,9 @@ namespace WareHouseManagement.Feature.Customers {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPut("/api/Customers", Handler).RequireAuthorization().WithTags("Customers");
+            app.MapPut("/api/Customers", Handler).WithTags("Customers");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
 
             var validator = new Validator();

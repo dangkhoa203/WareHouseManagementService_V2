@@ -8,7 +8,7 @@ namespace WareHouseManagement.Model.Form {
         public string WarehouseId { get; set; }
         public int Quantity { get; set; }
         public virtual Product ProductNav { get; set; }
-        public virtual StockImportForm FormNav { get; set; }
+        public virtual StockExportForm FormNav { get; set; }
         public virtual Warehouse WarehouseNav { get; set; }
     }
 }

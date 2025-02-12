@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.CustomerBuyReceipts {
     public class GetCustomerReceipt : IEndpoint {
@@ -11,8 +13,9 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
         public record Response(bool success, receiptDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Customer-Receipts/{id}", Handler).RequireAuthorization().WithTags("Customer Receipts");
+            app.MapGet("/api/Customer-Receipts/{id}", Handler).WithTags("Customer Receipts");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.CustomerReceipt)]
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

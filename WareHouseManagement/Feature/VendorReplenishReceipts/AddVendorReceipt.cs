@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 using WareHouseManagement.Model.Receipt;
 
 namespace WareHouseManagement.Feature.VendorReplenishReceipts {
@@ -17,8 +19,9 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Vendor-Receipts", Handler).RequireAuthorization().WithTags("Vendor Receipts");
+            app.MapPost("/api/Vendor-Receipts", Handler).WithTags("Vendor Receipts");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.VendorReceipt)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var validator = new Validator();
             var validatedresult = validator.Validate(request);

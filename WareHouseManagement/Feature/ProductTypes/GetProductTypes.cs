@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.ProductTypes
 {
@@ -12,8 +14,9 @@ namespace WareHouseManagement.Feature.ProductTypes
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Product-Types", Handler).RequireAuthorization().WithTags("Product Types");
+            app.MapGet("/api/Product-Types", Handler).WithTags("Product Types");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user)
         {
             try

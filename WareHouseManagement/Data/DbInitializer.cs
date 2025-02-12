@@ -41,6 +41,9 @@ namespace WareHouseManagement.Data {
             if (!await _roleManager.RoleExistsAsync(Permission.Export)) {
                 await _roleManager.CreateAsync(new IdentityRole(Permission.Export));
             }
+            if (!await _roleManager.RoleExistsAsync(Permission.Warehouse)) {
+                await _roleManager.CreateAsync(new IdentityRole(Permission.Warehouse));
+            }
 
         }
     }

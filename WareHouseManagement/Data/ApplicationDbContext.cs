@@ -121,11 +121,12 @@ namespace WareHouseManagement.Data
                    .OnDelete(DeleteBehavior.ClientSetNull)
                    .HasConstraintName("FK_importdetail_warehouse");
             });
-            builder.Entity<ImportFormDetail>(entity => {
+         
+            builder.Entity<ExportFormDetail>(entity => {
                 entity.HasKey(e => new { e.ProductId, e.FormId, e.WarehouseId });
 
                 entity.HasOne(d => d.ProductNav)
-                    .WithMany(p => p.ImportDetails)
+                    .WithMany(p => p.ExportDetails)
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_exportdetail_product");
@@ -136,7 +137,7 @@ namespace WareHouseManagement.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_exportdetail_form");
                 entity.HasOne(d => d.WarehouseNav)
-                   .WithMany(p => p.ImportDetails)
+                   .WithMany(p => p.ExportDetails)
                    .HasForeignKey(d => d.WarehouseId)
                    .OnDelete(DeleteBehavior.ClientSetNull)
                    .HasConstraintName("FK_exportdetail_warehouse");

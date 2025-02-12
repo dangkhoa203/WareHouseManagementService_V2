@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Warehouses {
     public class GetWarehouses : IEndpoint {
@@ -9,8 +11,9 @@ namespace WareHouseManagement.Feature.Warehouses {
         public record Response(bool success, List<warehouseDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Warehouses/", Handler).RequireAuthorization().WithTags("Warehouses");
-        }
+            app.MapGet("/api/Warehouses/", Handler).WithTags("Warehouses");
+        }   
+        [Authorize(Roles = Permission.Admin + "," + Permission.Warehouse)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.ImportForm {
     public class GetImportForm:IEndpoint {
@@ -11,8 +13,9 @@ namespace WareHouseManagement.Feature.ImportForm {
         public record Response(bool success, formDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Import-Forms/{id}", Handler).RequireAuthorization().WithTags("Import Forms");
+            app.MapGet("/api/Import-Forms/{id}", Handler).WithTags("Import Forms");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

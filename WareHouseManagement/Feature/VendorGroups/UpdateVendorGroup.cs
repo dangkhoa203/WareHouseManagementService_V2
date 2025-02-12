@@ -1,11 +1,13 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Vendor_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.VendorGroups
 {
@@ -26,8 +28,9 @@ namespace WareHouseManagement.Feature.VendorGroups
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPut("/api/Vendor-Groups", Handler).RequireAuthorization().WithTags("Vendor Groups");
+            app.MapPut("/api/Vendor-Groups", Handler).WithTags("Vendor Groups");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler(
             Request request,
             ApplicationDbContext context,

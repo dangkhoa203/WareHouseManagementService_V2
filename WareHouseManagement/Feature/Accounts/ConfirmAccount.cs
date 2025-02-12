@@ -5,6 +5,7 @@ using System.Text;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Accounts
 {
@@ -33,7 +34,7 @@ namespace WareHouseManagement.Feature.Accounts
                 {
                     return Results.BadRequest(new Response(false,"Lỗi đã xảy ra"));
                 }
-                await userManager.AddToRoleAsync(user, Permission.Admin.ToString());
+                await userManager.AddToRoleAsync(user, Permission.Admin);
             }
             else
             {

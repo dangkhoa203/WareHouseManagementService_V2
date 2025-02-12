@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Vendor_EntiTy;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Vendors {
     public class AddVendor : IEndpoint {
@@ -16,8 +18,9 @@ namespace WareHouseManagement.Feature.Vendors {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Vendors", Handler).RequireAuthorization().WithTags("Vendors");
+            app.MapPost("/api/Vendors", Handler).WithTags("Vendors");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
             var validator = new Validator();

@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 using WareHouseManagement.Model.Form;
 
 namespace WareHouseManagement.Feature.ExportForms {
@@ -18,8 +20,9 @@ namespace WareHouseManagement.Feature.ExportForms {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Export-Forms", Handler).RequireAuthorization().WithTags("Export Forms");
+            app.MapPost("/api/Export-Forms", Handler).WithTags("Export Forms");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var validator = new Validator();
             var validatedresult = validator.Validate(request);

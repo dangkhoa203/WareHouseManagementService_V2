@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
 using WareHouseManagement.Model.Entity.Customer_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Stocks {
     public class AddStocks : IEndpoint {
@@ -12,8 +14,9 @@ namespace WareHouseManagement.Feature.Stocks {
         public record Response(bool success, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Stocks", Handler).RequireAuthorization().WithTags("Stocks");
+            app.MapPost("/api/Stocks", Handler).WithTags("Stocks");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             if(request.quantity<0)
                 return Results.BadRequest(new Response(false, "Số lượng không đủ!"));

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Vendors {
     public class GetVendor : IEndpoint {
@@ -11,8 +13,9 @@ namespace WareHouseManagement.Feature.Vendors {
         public record Response(bool success, vendorDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendors/{id}", Handler).RequireAuthorization().WithTags("Vendors");
+            app.MapGet("/api/Vendors/{id}", Handler).WithTags("Vendors");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

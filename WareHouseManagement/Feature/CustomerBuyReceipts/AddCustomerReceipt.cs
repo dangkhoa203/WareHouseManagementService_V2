@@ -23,7 +23,7 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapPost("/api/Customer-Receipts", Handler).WithTags("Customer Receipts");
         }
-        [Authorize(Roles = Permission.Admin+","+Permission.Product)]
+        [Authorize(Roles = Permission.Admin+","+Permission.CustomerReceipt)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var validator = new Validator();
             var validatedresult = validator.Validate(request);

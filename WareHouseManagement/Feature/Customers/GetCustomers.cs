@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Customers {
     public class GetCustomers : IEndpoint {
@@ -11,6 +13,7 @@ namespace WareHouseManagement.Feature.Customers {
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapGet("/api/Customers/", Handler).RequireAuthorization().WithTags("Customers");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

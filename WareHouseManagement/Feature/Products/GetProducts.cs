@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Products
 {
@@ -11,8 +13,9 @@ namespace WareHouseManagement.Feature.Products
         public record Response(bool success, List<productDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Products/", Handler).RequireAuthorization().WithTags("Products");
+            app.MapGet("/api/Products/", Handler).WithTags("Products");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

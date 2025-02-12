@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.CustomerGroups {
     public class GetCustomerGroups : IEndpoint {
@@ -10,8 +12,9 @@ namespace WareHouseManagement.Feature.CustomerGroups {
         public record Response(bool success, List<groupDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Customer-Groups", Handler).RequireAuthorization().WithTags("Customer Groups");
+            app.MapGet("/api/Customer-Groups", Handler).WithTags("Customer Groups");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
                 var service = context.Users

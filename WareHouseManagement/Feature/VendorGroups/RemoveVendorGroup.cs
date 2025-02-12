@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.VendorGroups
 {
@@ -12,8 +14,9 @@ namespace WareHouseManagement.Feature.VendorGroups
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapDelete("/api/Vendor-Groups/", Handler).RequireAuthorization().WithTags("Vendor Groups");
+            app.MapDelete("/api/Vendor-Groups/", Handler).WithTags("Vendor Groups");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {
             var service = context.Users

@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.VendorGroups
 {
@@ -12,8 +14,9 @@ namespace WareHouseManagement.Feature.VendorGroups
 
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/Vendor-Groups/{id}", Handler).RequireAuthorization().WithTags("Vendor Groups");
+            app.MapGet("/api/Vendor-Groups/{id}", Handler).WithTags("Vendor Groups");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler(string id,ApplicationDbContext context, ClaimsPrincipal user)
         {
             try

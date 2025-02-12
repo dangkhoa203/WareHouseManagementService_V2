@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.ProductTypes
 {
@@ -12,8 +14,9 @@ namespace WareHouseManagement.Feature.ProductTypes
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapDelete("/api/Product-Types/", Handler).RequireAuthorization().WithTags("Product Types");
+            app.MapDelete("/api/Product-Types/", Handler).WithTags("Product Types");
         }
+        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {
             var service = context.Users
