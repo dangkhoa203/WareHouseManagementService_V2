@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
@@ -7,6 +8,7 @@ using System.Text;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Middleware;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Accounts.Email
 {
@@ -42,6 +44,7 @@ namespace WareHouseManagement.Feature.Accounts.Email
         {
             app.MapPost("/api/Account/EmailChange/", Handler).WithTags("Account");
         }
+        [Authorize(Roles =Permission.Admin)]
         private static async Task<IResult> Handler(Request request, UserManager<Account> userManager, ClaimsPrincipal user)
         {
             var validator = new Validator();

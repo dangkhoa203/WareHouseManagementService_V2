@@ -7,6 +7,7 @@ namespace WareHouseManagement.Model.Entity
         public string FullName { get; set; }
         public DateTime CreateDate { get; set; }
         public string ServiceId { get; set; }
+        public bool isAdmin { get; set; }=false;
         public virtual ServiceRegistered? ServiceRegistered { get; set; }
         public Account()
         {

@@ -18,8 +18,8 @@ namespace WareHouseManagement.Feature.Vendors {
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var vendor = await context.Vendors
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (vendor != null) {
                 context.Vendors.Remove(vendor);
                 var result = await context.SaveChangesAsync();

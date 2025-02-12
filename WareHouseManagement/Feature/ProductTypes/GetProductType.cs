@@ -24,9 +24,9 @@ namespace WareHouseManagement.Feature.ProductTypes
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
                 var types = await context.ProductTypes
-                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                    .Where(t => t.Id == id)
-                    .Select(t => new typeDTO(t.Id, t.Name, t.Description, t.CreatedDate))
+                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.Id == id)
+                    .Select(u => new typeDTO(u.Id, u.Name, u.Description, u.CreatedDate))
                     .FirstOrDefaultAsync();
                 if (types != null)
                     return Results.Ok(new Response(true, types, ""));

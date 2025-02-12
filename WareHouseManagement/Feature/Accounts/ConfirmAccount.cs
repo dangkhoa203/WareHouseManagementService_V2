@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
 
@@ -32,6 +33,7 @@ namespace WareHouseManagement.Feature.Accounts
                 {
                     return Results.BadRequest(new Response(false,"Lỗi đã xảy ra"));
                 }
+                await userManager.AddToRoleAsync(user, Permission.Admin.ToString());
             }
             else
             {

@@ -27,7 +27,7 @@ namespace WareHouseManagement.Feature.ImportForm {
                        .ThenInclude(d => d.WarehouseNav)
                     .Include(f => f.Receipt)
                        .ThenInclude(re=>re.Vendor)
-                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
                     .Where(r => !r.IsDeleted)
                     .FirstOrDefaultAsync(r => r.Id == id);
                 if (form != null) {

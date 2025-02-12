@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Accounts.ChangeFullName
 {
@@ -23,6 +25,7 @@ namespace WareHouseManagement.Feature.Accounts.ChangeFullName
         {
             app.MapPut("api/Account/FullNameChange/", Handler).WithTags("Account");
         }
+        [Authorize(Roles = Permission.Admin)]
         private static async Task<IResult> Handler(Request request, UserManager<Account> userManager, ClaimsPrincipal user)
         {
             Account userDetail = await userManager.FindByNameAsync(user.Identity.Name);

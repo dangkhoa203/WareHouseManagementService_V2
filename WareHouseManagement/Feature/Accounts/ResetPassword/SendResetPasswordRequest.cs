@@ -6,6 +6,7 @@ using System.Text;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Middleware;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Accounts.ResetPassword
 {
@@ -35,6 +36,9 @@ namespace WareHouseManagement.Feature.Accounts.ResetPassword
             Account user = await userManager.FindByEmailAsync(request.email);
             if (user != null)
             {
+                if (!await userManager.IsInRoleAsync(user, Permission.Admin)) {
+                    return Results.BadRequest(new Response(false, "Lỗi đã xảy ra!", null));
+                }
                 var token = await userManager.GeneratePasswordResetTokenAsync(user);
                 token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 var ConfirmLink = $"https://localhost:7088/ResetPassword/{WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(user.Id))}/{token}";

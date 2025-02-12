@@ -14,7 +14,7 @@ namespace WareHouseManagement.Feature.Accounts
 {
     public class Register : IEndpoint
     {
-        public record Request(string userName, string password,string confirmPassword,string email,string fullName);
+        public record Request(string serviceName,string userName, string password,string confirmPassword,string email,string fullName);
         public record Response(bool success, string errorMessage, ValidationResult? validateError);
         public sealed class Validator : AbstractValidator<Request>
         {
@@ -53,11 +53,13 @@ namespace WareHouseManagement.Feature.Accounts
             }
            
             ServiceRegistered serviceRegistered = new ServiceRegistered();
+            serviceRegistered.Name = request.serviceName;
             Account account = new()
             {
                 Email = request.email,
                 UserName = request.userName,
                 FullName = request.fullName,
+                isAdmin=true,
                 ServiceRegistered = serviceRegistered,
             };
             var result = await userManager.CreateAsync(account, request.password);

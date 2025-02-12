@@ -18,8 +18,8 @@ namespace WareHouseManagement.Feature.Warehouses {
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var warehouse = await context.Warehouses
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (warehouse != null) {
                 context.Warehouses.Remove(warehouse);
                 var result = await context.SaveChangesAsync();

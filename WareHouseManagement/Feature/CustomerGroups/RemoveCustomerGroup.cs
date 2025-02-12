@@ -18,8 +18,8 @@ namespace WareHouseManagement.Feature.CustomerGroups {
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var group = await context.CustomerGroups
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (group != null) {
                 context.CustomerGroups.Remove(group);
                 var result = await context.SaveChangesAsync();

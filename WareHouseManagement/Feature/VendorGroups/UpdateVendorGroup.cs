@@ -45,8 +45,8 @@ namespace WareHouseManagement.Feature.VendorGroups
                 .FirstOrDefault();
 
             var group = await context.VendorGroups
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (group == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
 

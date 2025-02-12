@@ -25,7 +25,7 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
                     .ThenInclude(d => d.ProductNav)
                     .Include(r => r.Customer)
                     .ThenInclude(c => c.CustomerGroup)
-                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
                     .Where(r => !r.IsDeleted)
                     .FirstOrDefaultAsync(r => r.Id == id);
                 if (Receipt != null) {

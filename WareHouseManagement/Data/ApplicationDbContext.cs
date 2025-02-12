@@ -25,19 +25,19 @@ namespace WareHouseManagement.Data
             );
             builder.Entity<ProductType>(entity =>
             {
-                entity.HasMany(t => t.Products)
+                entity.HasMany(u => u.Products)
                       .WithOne(p => p.ProductType)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
             builder.Entity<CustomerGroup>(entity =>
             {
-                entity.HasMany(t => t.Customers)
+                entity.HasMany(u => u.Customers)
                       .WithOne(p => p.CustomerGroup)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
             builder.Entity<VendorGroup>(entity =>
             {
-                entity.HasMany(t => t.Vendors)
+                entity.HasMany(u => u.Vendors)
                       .WithOne(p => p.VendorGroup)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });

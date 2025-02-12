@@ -22,8 +22,8 @@ namespace WareHouseManagement.Feature.VendorGroups
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var group = await context.VendorGroups
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (group != null)
             {
                 context.VendorGroups.Remove(group);

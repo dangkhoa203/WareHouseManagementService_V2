@@ -45,8 +45,8 @@ namespace WareHouseManagement.Feature.ProductTypes
                 .FirstOrDefault();
 
             var types = await context.ProductTypes
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (types == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
 

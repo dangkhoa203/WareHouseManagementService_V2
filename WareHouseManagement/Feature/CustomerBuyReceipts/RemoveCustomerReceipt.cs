@@ -18,8 +18,8 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var receipt = await context.CustomerBuyReceipts
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (receipt != null) {
                 receipt.IsDeleted = true;
                 var result = await context.SaveChangesAsync();

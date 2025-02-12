@@ -20,9 +20,9 @@ namespace WareHouseManagement.Feature.CustomerGroups {
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
                 var groups = await context.CustomerGroups
-                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                    .OrderByDescending(t => t.CreatedDate)
-                    .Select(t => new groupDTO(t.Id, t.Name, t.Description, t.CreatedDate))
+                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .OrderByDescending(u => u.CreatedDate)
+                    .Select(u => new groupDTO(u.Id, u.Name, u.Description, u.CreatedDate))
                     .ToListAsync();
                 return Results.Ok(new Response(true, groups, ""));
             } catch (Exception ex) {

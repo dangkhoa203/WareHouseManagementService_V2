@@ -34,9 +34,9 @@ namespace WareHouseManagement.Feature.CustomerGroups {
                 .FirstOrDefault();
 
             var group = await context.CustomerGroups
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .Include(t => t.Customers)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .Include(u => u.Customers)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (group == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
 

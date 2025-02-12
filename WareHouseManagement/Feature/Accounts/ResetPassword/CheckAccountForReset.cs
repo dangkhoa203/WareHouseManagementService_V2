@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Accounts.ResetPassword
 {
@@ -17,7 +18,7 @@ namespace WareHouseManagement.Feature.Accounts.ResetPassword
         private static async Task<IResult> Handler([FromRoute] string userid, UserManager<Account> userManager)
         {
             Account user = await userManager.FindByIdAsync(Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(userid)));
-            if (user != null)
+            if (user != null && await userManager.IsInRoleAsync(user, Permission.Admin))
             {
                 return Results.Ok(new Response(true));
             }

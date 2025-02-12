@@ -18,8 +18,8 @@ namespace WareHouseManagement.Feature.ImportForm {
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var form = await context.StockImportForms
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (form != null) {
                 form.IsDeleted = true;
                 var result = await context.SaveChangesAsync();

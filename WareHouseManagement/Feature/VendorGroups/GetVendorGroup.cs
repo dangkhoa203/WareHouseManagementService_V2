@@ -24,9 +24,9 @@ namespace WareHouseManagement.Feature.VendorGroups
                     .Select(u => u.ServiceRegistered)
                     .FirstOrDefault();
                 var group = await context.VendorGroups
-                    .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                    .Where(t => t.Id == id)
-                    .Select(t => new groupDTO(t.Id, t.Name, t.Description, t.CreatedDate))
+                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.Id == id)
+                    .Select(u => new groupDTO(u.Id, u.Name, u.Description, u.CreatedDate))
                     .FirstOrDefaultAsync();
                 if (group != null)
                     return Results.Ok(new Response(true, group, ""));

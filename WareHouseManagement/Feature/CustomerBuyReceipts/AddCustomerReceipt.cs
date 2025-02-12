@@ -7,6 +7,8 @@ using WareHouseManagement.Model.Entity;
 using WareHouseManagement.Model.Receipt;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.CustomerBuyReceipts {
     public class AddCustomerReceipt : IEndpoint {
@@ -19,8 +21,9 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Customer-Receipts", Handler).RequireAuthorization().WithTags("Customer Receipts");
+            app.MapPost("/api/Customer-Receipts", Handler).WithTags("Customer Receipts");
         }
+        [Authorize(Roles = Permission.Admin+","+Permission.Product)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var validator = new Validator();
             var validatedresult = validator.Validate(request);

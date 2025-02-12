@@ -22,8 +22,8 @@ namespace WareHouseManagement.Feature.ProductTypes
                 .Select(u => u.ServiceRegistered)
                 .FirstOrDefault();
             var type = await context.ProductTypes
-                .Where(t => t.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(t => t.Id == request.id);
+                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .FirstOrDefaultAsync(u => u.Id == request.id);
             if (type != null)
             {
                 context.ProductTypes.Remove(type);

@@ -9,6 +9,7 @@ namespace WareHouseManagement.Model.Entity
     {
         [Key]
         public string Id { get; set; }
+        public string Name { get; set; }
         public ServiceRegistered()
         {
             Id = $"SERVICE-{Nanoid.Generate(Nanoid.Alphabets.LowercaseLettersAndDigits, 4)}";
