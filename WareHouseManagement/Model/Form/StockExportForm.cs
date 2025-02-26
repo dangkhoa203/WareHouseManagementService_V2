@@ -1,17 +1,21 @@
 ﻿using NanoidDotNet;
 using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Generic;
+using WareHouseManagement.Model.Enum;
 using WareHouseManagement.Model.Receipt;
 
 namespace WareHouseManagement.Model.Form
 {
-    public class StockExportForm: FormGeneric {
-        public StockExportForm()
+    public class StockExportForm: EntityGeneric {
+        public string ReceiptId { get; set; }
+        public required DateTime ExportDate { get; set; }
+        public StatusEnum Status { get; set; }
+        public StockExportForm():base()
         {
             Id= $"XUATKHO-{Nanoid.Generate(Nanoid.Alphabets.LowercaseLettersAndDigits, 5)}";
+            Status = StatusEnum.Draft ;
         }
-        public DateTime ExportDate { get; set; }
-        public string ReceiptId { get; set; }
-        public virtual CustomerBuyReceipt Receipt { get; set; }
-        public virtual ICollection<ExportFormDetail> Details { get; set; }
+        public virtual CustomerBuyReceipt? Receipt { get; set; }
+        public virtual ICollection<ExportFormDetail>? Details { get; set; }
     }
 }

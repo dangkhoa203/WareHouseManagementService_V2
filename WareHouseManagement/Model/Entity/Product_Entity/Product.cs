@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NanoidDotNet;
+using WareHouseManagement.Model.Entity.Generic;
 using WareHouseManagement.Model.Entity.Vendor_EntiTy;
+using WareHouseManagement.Model.Entity.Warehouse_Entity;
 using WareHouseManagement.Model.Form;
 using WareHouseManagement.Model.Receipt;
 
 
-namespace WareHouseManagement.Model.Entity.Product_Entity
-{
+namespace WareHouseManagement.Model.Entity.Product_Entity {
     public class Product : EntityGeneric
     {
-        public  int PricePerUnit { get; set; }
+        public required string Name { get; set; }
+        public required float PricePerUnit { get; set; }
         public required string MeasureUnit { get; set; }
         public Product() : base()
         {
@@ -20,6 +22,6 @@ namespace WareHouseManagement.Model.Entity.Product_Entity
         public virtual ICollection<CustomerBuyReceiptDetail>? CustomerBuyReceiptDetails { get; set; }
         public virtual ICollection<ImportFormDetail>? ImportDetails { get; set; }
         public virtual ICollection<ExportFormDetail>? ExportDetails { get; set; }
-        public virtual ICollection<Stock> Stocks { get; set; }
+        public virtual ICollection<Stock>? Stocks { get; set; }
     }
 }

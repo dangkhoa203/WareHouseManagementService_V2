@@ -6,6 +6,7 @@
         public const string Customer = "Customer";
         public const string VendorReceipt = "VendorReceipt";
         public const string CustomerReceipt = "CustomerReceipt";
+        public const string Tax = "Tax";
         public const string Stock = "Stock";
         public const string Import = "Import";
         public const string Export = "Export";
