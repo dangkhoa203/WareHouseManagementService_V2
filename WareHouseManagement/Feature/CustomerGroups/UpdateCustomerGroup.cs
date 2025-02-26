@@ -30,14 +30,14 @@ namespace WareHouseManagement.Feature.CustomerGroups {
             if (!validatedresult.IsValid)
                 return Results.BadRequest(new Response(false, "", validatedresult));
 
-            var service = context.Users
+            var serviceId = context.Users
                 .Include(u => u.ServiceRegistered)
                 .Where(u => u.UserName == user.Identity.Name)
-                .Select(u => u.ServiceRegistered)
+                .Select(u => u.ServiceId)
                 .FirstOrDefault();
 
             var group = await context.CustomerGroups
-                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .Where(u => u.ServiceId == serviceId)
                 .Include(u => u.Customers)
                 .FirstOrDefaultAsync(u => u.Id == request.id);
             if (group == null)

@@ -17,15 +17,15 @@ namespace WareHouseManagement.Feature.ExportForms {
         [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var forms = await context.StockExportForms
                     .Include(f => f.Receipt)
                     .ThenInclude(re => re.Customer)
-                    .Where(f => f.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(f => f.ServiceId == serviceId)
                     .OrderByDescending(f => f.CreatedDate)
                     .Select(f => new formDTO(
                         f.Id,

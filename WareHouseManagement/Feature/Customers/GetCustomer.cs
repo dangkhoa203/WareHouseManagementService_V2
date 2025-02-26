@@ -23,14 +23,14 @@ namespace WareHouseManagement.Feature.Customers
         {
             try
             {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var customer = await context.Customers
                     .Include(c => c.CustomerGroup)
-                    .Where(c => c.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(c => c.ServiceId == serviceId)
                     .Where(c => c.Id == id)
                     .Select(c => new customerDTO(
 

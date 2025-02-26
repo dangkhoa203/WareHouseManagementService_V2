@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.Accounts.ChangeFullName
-{
+namespace WareHouseManagement.Feature.Accounts.ChangeFullName {
     public class ChangeFullname : IEndpoint
     {
         public record Request(string fullName);

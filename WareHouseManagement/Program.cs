@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using WareHouseManagement.Data;
 using WareHouseManagement.Extensions;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +48,7 @@ builder.Services.AddIdentityCore<Account>(option => {
 builder.Services.ConfigureApplicationCookie(options => {
     options.Cookie.SameSite = SameSiteMode.None;
 });
-
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -63,5 +63,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapIdentityApi<Account>();
 app.UseCors("Dev");
+var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+dbInitializer.Initialize();
 app.MapControllers();
 app.Run();

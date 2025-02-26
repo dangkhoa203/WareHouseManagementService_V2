@@ -15,13 +15,13 @@ namespace WareHouseManagement.Feature.Stocks {
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-            var service = context.Users
+            var serviceId = context.Users
                 .Include(u => u.ServiceRegistered)
                 .Where(u => u.UserName == user.Identity.Name)
-                .Select(u => u.ServiceRegistered)
+                .Select(u => u.ServiceId)
                 .FirstOrDefault();
             var stock = await context.Stocks
-                .Where(s => s.ServiceRegisteredFrom.Id == service.Id)
+                .Where(s => s.ServiceId == serviceId)
                 .FirstOrDefaultAsync(s => s.ProductId == request.productId && s.WarehouseId==request.warehouseId);
             if (stock != null) {
                 context.Stocks.Remove(stock);

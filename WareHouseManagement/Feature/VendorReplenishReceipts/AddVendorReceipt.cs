@@ -11,7 +11,7 @@ using WareHouseManagement.Model.Receipt;
 namespace WareHouseManagement.Feature.VendorReplenishReceipts {
     public class AddVendorReceipt:IEndpoint {
         public record detailDTO(string productId, int quantity);
-        public record Request(string vendorId, DateTime dateOfOrder, List<detailDTO> details);
+        public record Request(string vendorId, string taxId, DateTime dateOfOrder, List<detailDTO> details);
         public record Response(bool success, string errorMessage, ValidationResult? error);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
@@ -28,7 +28,7 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
             if (!validatedresult.IsValid) {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var details = new List<VendorReplenishReceiptDetail>();
             foreach (var re in request.details) {
                 var newdetail = new VendorReplenishReceiptDetail();
@@ -41,8 +41,10 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
             var receipt = new VendorReplenishReceipt() {
                 Vendor = await context.Vendors.FindAsync(request.vendorId),
                 DateOrder = request.dateOfOrder,
+                Tax = await context.Taxes.FindAsync(request.taxId),
+                ReceiptValue = details.Sum(d => d.TotalPrice),
                 Details = details,
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.VendorReplenishReceipts.AddAsync(receipt);
             if (await context.SaveChangesAsync() > 0) {

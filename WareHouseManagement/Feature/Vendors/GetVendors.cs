@@ -16,14 +16,14 @@ namespace WareHouseManagement.Feature.Vendors {
         [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var vendors = await context.Vendors
                     .Include(v => v.VendorGroup)
-                    .Where(v => v.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(v => v.ServiceId == serviceId)
                     .OrderByDescending(v => v.CreatedDate)
                     .Select(v => new vendorDTO(
                         v.Id,

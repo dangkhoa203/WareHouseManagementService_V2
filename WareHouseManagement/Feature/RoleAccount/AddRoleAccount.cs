@@ -3,15 +3,16 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NanoidDotNet;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.RoleAccount {
     public class AddRoleAccount:IEndpoint {
-        public record Request(string userName, string password, string confirmPassword, string fullName, List<string> roles);
+        public record Request(string idName,string userName, string password, string confirmPassword, string fullName, List<string> roles);
         public record Response(bool success, string errorMessage, ValidationResult? validateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
@@ -37,7 +38,7 @@ namespace WareHouseManagement.Feature.RoleAccount {
 
             var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
             Account account = new() {
-                UserName = $"{service.Name}-{request.userName}",
+                UserName = $"ACC{Nanoid.Generate(Nanoid.Alphabets.Digits,5)}-{request.userName}",
                 FullName = request.fullName,
                 EmailConfirmed=true,
                 ServiceRegistered = service,

@@ -16,13 +16,13 @@ namespace WareHouseManagement.Feature.Warehouses {
         [Authorize(Roles = Permission.Admin + "," + Permission.Warehouse)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var warehouse = await context.Warehouses
-                    .Where(v => v.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(v => v.ServiceId == serviceId)
                     .OrderByDescending(v => v.CreatedDate)
                     .Select(v => new warehouseDTO(
                         v.Id,

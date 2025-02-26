@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 
-namespace WareHouseManagement.Feature.Accounts
-{
+namespace WareHouseManagement.Feature.Accounts {
     public class GetAccount:IEndpoint
     {
         public record Response(string username,string userfullname,string useremail,string userid,bool islogged);

@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 
-namespace WareHouseManagement.Feature.Accounts
-{
+namespace WareHouseManagement.Feature.Accounts {
     public class LogOut : IEndpoint
     {
         public record Response(bool success,string errorMessage);

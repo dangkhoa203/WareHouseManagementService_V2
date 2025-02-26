@@ -29,7 +29,7 @@ namespace WareHouseManagement.Feature.VendorGroups
         [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var validator = new Validator();
             var validatedresult = validator.Validate(request);
             if (!validatedresult.IsValid)
@@ -40,7 +40,7 @@ namespace WareHouseManagement.Feature.VendorGroups
             {
                 Name = request.name,
                 Description = request.description,
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.VendorGroups.AddAsync(Group);
             if (await context.SaveChangesAsync() > 0)

@@ -7,11 +7,10 @@ using System.Security.Claims;
 using System.Text;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Middleware;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.Accounts.Email
-{
+namespace WareHouseManagement.Feature.Accounts.Email {
     public class SendChangeEmailRequest : IEndpoint
     {
         public record Request(string oldEmail, string newEmail);

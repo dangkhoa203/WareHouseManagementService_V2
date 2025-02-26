@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
 using WareHouseManagement.Model.Entity.Customer_Entity;
+using WareHouseManagement.Model.Entity.Warehouse_Entity;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Stocks {
@@ -20,10 +20,10 @@ namespace WareHouseManagement.Feature.Stocks {
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             if(request.quantity<0)
                 return Results.BadRequest(new Response(false, "Số lượng không đủ!"));
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             if(context.Stocks.FirstOrDefault(s=>s.ProductId==request.productID&& s.WarehouseId == request.warehouseId) != null) {
-                var product = await context.Products.Where(p=>p.ServiceRegisteredFrom.Id == service.Id).FirstOrDefaultAsync(p=>p.Id==request.productID);
-                var warehouse = await context.Warehouses.Where(w => w.ServiceRegisteredFrom.Id == service.Id).FirstOrDefaultAsync(w => w.Id == request.productID);
+                var product = await context.Products.Where(p=>p.ServiceId == serviceId).FirstOrDefaultAsync(p=>p.Id==request.productID);
+                var warehouse = await context.Warehouses.Where(w => w.ServiceId == serviceId).FirstOrDefaultAsync(w => w.Id == request.productID);
                 if (product == null || warehouse == null) {
                     return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!"));
                 }
@@ -31,6 +31,7 @@ namespace WareHouseManagement.Feature.Stocks {
                     ProductNav = product,
                     WarehouseNav = warehouse,
                     Quantity = request.quantity,
+                    ServiceId=serviceId
                 };
                 await context.Stocks.AddAsync(stock);
                 if (await context.SaveChangesAsync() > 0) {

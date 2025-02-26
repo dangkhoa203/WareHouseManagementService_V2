@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Data {
@@ -25,6 +25,9 @@ namespace WareHouseManagement.Data {
             }
             if (!await _roleManager.RoleExistsAsync(Permission.Customer)) {
                 await _roleManager.CreateAsync(new IdentityRole(Permission.Customer));
+            }
+            if (!await _roleManager.RoleExistsAsync(Permission.Tax)) {
+                await _roleManager.CreateAsync(new IdentityRole(Permission.Tax));
             }
             if (!await _roleManager.RoleExistsAsync(Permission.VendorReceipt)) {
                 await _roleManager.CreateAsync(new IdentityRole(Permission.VendorReceipt));

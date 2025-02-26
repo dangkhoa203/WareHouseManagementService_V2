@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Product_Entity;
 using WareHouseManagement.Model.Entity.Vendor_Entity;
@@ -9,8 +9,7 @@ using WareHouseManagement.Model.Entity.Vendor_EntiTy;
 using WareHouseManagement.Model.Entity.Warehouse_Entity;
 using WareHouseManagement.Model.Form;
 using WareHouseManagement.Model.Receipt;
-namespace WareHouseManagement.Data
-{
+namespace WareHouseManagement.Data {
     public class ApplicationDbContext : IdentityDbContext<Account>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> option) : base(option)
@@ -160,6 +159,7 @@ namespace WareHouseManagement.Data
 
         public virtual DbSet<Vendor> Vendors { get; set; }
         public virtual DbSet<VendorGroup> VendorGroups { get; set; }
+        public virtual DbSet<Tax> Taxes { get; set; }
         public virtual DbSet<VendorReplenishReceipt> VendorReplenishReceipts { get; set; }
         public virtual DbSet<VendorReplenishReceiptDetail> VendorReplenishReceiptDetails { get; set; }
         public virtual DbSet<Warehouse> Warehouses { get; set; }

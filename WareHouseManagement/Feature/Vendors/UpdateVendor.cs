@@ -36,10 +36,10 @@ namespace WareHouseManagement.Feature.Vendors {
             if (!validatedresult.IsValid) {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var vendor = await context.Vendors
                 .Include(c => c.VendorGroup)
-                .Where(c => c.ServiceRegisteredFrom.Id == service.Id)
+                .Where(c => c.ServiceId == serviceId)
                 .FirstOrDefaultAsync(c => c.Id == request.id);
             if (vendor == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));

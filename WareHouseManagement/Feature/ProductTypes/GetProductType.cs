@@ -21,13 +21,13 @@ namespace WareHouseManagement.Feature.ProductTypes
         {
             try
             {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var types = await context.ProductTypes
-                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.ServiceId == serviceId)
                     .Where(u => u.Id == id)
                     .Select(u => new typeDTO(u.Id, u.Name, u.Description, u.CreatedDate))
                     .FirstOrDefaultAsync();

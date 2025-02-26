@@ -2,10 +2,9 @@
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 
-namespace WareHouseManagement.Feature.Accounts.ChangeEmail
-{
+namespace WareHouseManagement.Feature.Accounts.ChangeEmail {
     public class ChangeEmail : IEndpoint
     {
         public record Response(bool success, string errorMessage);

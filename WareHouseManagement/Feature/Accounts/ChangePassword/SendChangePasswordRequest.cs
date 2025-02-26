@@ -7,11 +7,10 @@ using System.Security.Claims;
 using System.Text;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Middleware;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.Accounts.ChangePassword
-{
+namespace WareHouseManagement.Feature.Accounts.ChangePassword {
     public class SendChangePasswordRequest : IEndpoint
     {
         public record Request(string oldPassword,string newPassword,string confirmNewPassword);

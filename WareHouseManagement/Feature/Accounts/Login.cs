@@ -3,10 +3,9 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 
-namespace WareHouseManagement.Feature.Accounts
-{
+namespace WareHouseManagement.Feature.Accounts {
     public class Login : IEndpoint
     {
         public record Request(string userName,string password,bool remember);

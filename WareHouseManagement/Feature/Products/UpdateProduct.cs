@@ -18,7 +18,7 @@ namespace WareHouseManagement.Feature.Products {
                 RuleFor(r => r.pricePerUnit).GreaterThan(-1).WithMessage("Giá chưa phù hợp");
                 RuleFor(r => r.measureUnit).NotEmpty().WithMessage("Chưa nhập đơn vị tính");
             }
-            private record checkmodel(string name, int pricePerUnit, string measureUnit, string? typeId);
+            private record checkmodel(string name, float pricePerUnit, string measureUnit, string? typeId);
             public bool checkSame(Request request, Product product) {
                 checkmodel newDetail = new checkmodel(request.name, request.pricePerUnit, request.measureUnit, request.typeId);
                 checkmodel oldDetail = new checkmodel(product.Name, product.PricePerUnit, product.MeasureUnit, product.ProductType != null ? product.ProductType.Id : "");
@@ -36,10 +36,10 @@ namespace WareHouseManagement.Feature.Products {
             if (!validatedresult.IsValid) {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var product = await context.Products
                 .Include(p => p.ProductType)
-                .Where(p => p.ServiceRegisteredFrom.Id == service.Id)
+                .Where(p => p.ServiceId == serviceId)
                 .FirstOrDefaultAsync(p => p.Id == request.id);
             if (product == null)
                 return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));

@@ -6,26 +6,26 @@ using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.ImportForm {
-    public class RemoveImportForm:IEndpoint {
+namespace WareHouseManagement.Feature.Taxes {
+    public class RemoveTax:IEndpoint {
         public record Request(string id);
         public record Response(bool success, string errorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapDelete("/api/Import-Forms/", Handler).WithTags("Import Forms");
+            app.MapDelete("/api/Taxes/", Handler).WithTags("Taxes");
         }
-        [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
+
+        [Authorize(Roles = Permission.Admin + "," + Permission.Tax)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
             var serviceId = context.Users
                 .Include(u => u.ServiceRegistered)
                 .Where(u => u.UserName == user.Identity.Name)
                 .Select(u => u.ServiceId)
                 .FirstOrDefault();
-            var form = await context.StockImportForms
+            var tax = await context.Taxes
                 .Where(u => u.ServiceId == serviceId)
                 .FirstOrDefaultAsync(u => u.Id == request.id);
-            if (form != null) {
-                form.IsDeleted = true;
-                form.DeletedAt = DateTime.Now;
+            if (tax != null) {
+                context.Taxes.Remove(tax);
                 var result = await context.SaveChangesAsync();
                 if (result > 0)
                     return Results.Ok(new Response(true, ""));

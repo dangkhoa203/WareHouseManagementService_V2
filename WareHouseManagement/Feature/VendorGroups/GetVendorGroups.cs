@@ -21,13 +21,13 @@ namespace WareHouseManagement.Feature.VendorGroups
         {
             try
             {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var groups = await context.VendorGroups
-                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.ServiceId == serviceId)
                     .OrderByDescending(u => u.CreatedDate)
                     .Select(u => new groupDTO(u.Id, u.Name, u.Description, u.CreatedDate))
                     .ToListAsync();

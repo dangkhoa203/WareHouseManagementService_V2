@@ -8,7 +8,7 @@ using WareHouseManagement.Model.Enum;
 namespace WareHouseManagement.Feature.Products {
     public class GetProduct : IEndpoint {
         public record typeDTO(string id, string name, string description);
-        public record productDTO(string id, string name, int pricePerUnit, string measureUnit, typeDTO? type, DateTime createDate);
+        public record productDTO(string id, string name, float pricePerUnit, string measureUnit, typeDTO? type, DateTime createDate);
         public record Response(bool success, productDTO data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
@@ -17,14 +17,14 @@ namespace WareHouseManagement.Feature.Products {
         [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var product = await context.Products
                     .Include(p => p.ProductType)
-                    .Where(p => p.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(p => p.ServiceId == serviceId)
                     .Where(p => p.Id == id)
                     .OrderByDescending(p => p.CreatedDate)
                     .Select(p => new productDTO(

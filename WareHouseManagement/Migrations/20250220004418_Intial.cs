@@ -26,15 +26,101 @@ namespace WareHouseManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ServiceRegistereds",
+                name: "CustomerGroups",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerGroups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductTypes",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRegistereds",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ServiceRegistereds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Taxes",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Percent = table.Column<float>(type: "real", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Taxes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VendorGroups",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VendorGroups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Warehouses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Warehouses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -56,6 +142,55 @@ namespace WareHouseManagement.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerGroupId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Customers_CustomerGroups_CustomerGroupId",
+                        column: x => x.CustomerGroupId,
+                        principalTable: "CustomerGroups",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Products",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PricePerUnit = table.Column<float>(type: "real", nullable: false),
+                    MeasureUnit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductTypeId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Products_ProductTypes_ProductTypeId",
+                        column: x => x.ProductTypeId,
+                        principalTable: "ProductTypes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -94,94 +229,82 @@ namespace WareHouseManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerGroups",
+                name: "Vendors",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerGroups", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CustomerGroups_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductTypes",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductTypes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductTypes_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VendorGroups",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VendorGroups", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VendorGroups_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Warehouses",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VendorGroupId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Warehouses", x => x.Id);
+                    table.PrimaryKey("PK_Vendors", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Warehouses_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Vendors_VendorGroups_VendorGroupId",
+                        column: x => x.VendorGroupId,
+                        principalTable: "VendorGroups",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerBuyReceipts",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DateOrder = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReceiptValue = table.Column<float>(type: "real", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    TaxId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerBuyReceipts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomerBuyReceipts_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CustomerBuyReceipts_Taxes_TaxId",
+                        column: x => x.TaxId,
+                        principalTable: "Taxes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Stocks",
+                columns: table => new
+                {
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    WarehouseId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stocks", x => new { x.ProductId, x.WarehouseId });
+                    table.ForeignKey(
+                        name: "FK_stock_product",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_warehouse_receipt",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouses",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -270,173 +393,28 @@ namespace WareHouseManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Customers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CustomerGroupId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Customers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Customers_CustomerGroups_CustomerGroupId",
-                        column: x => x.CustomerGroupId,
-                        principalTable: "CustomerGroups",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Customers_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Products",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PricePerUnit = table.Column<int>(type: "int", nullable: false),
-                    MeasureUnit = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductTypeId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Products", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Products_ProductTypes_ProductTypeId",
-                        column: x => x.ProductTypeId,
-                        principalTable: "ProductTypes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Products_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Vendors",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VendorGroupId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Vendors", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Vendors_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Vendors_VendorGroups_VendorGroupId",
-                        column: x => x.VendorGroupId,
-                        principalTable: "VendorGroups",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CustomerBuyReceipts",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DateOrder = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerBuyReceipts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CustomerBuyReceipts_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_CustomerBuyReceipts_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Stocks",
-                columns: table => new
-                {
-                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    WarehouseId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Stocks", x => new { x.ProductId, x.WarehouseId });
-                    table.ForeignKey(
-                        name: "FK_Stocks_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_stock_product",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_warehouse_receipt",
-                        column: x => x.WarehouseId,
-                        principalTable: "Warehouses",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "VendorReplenishReceipts",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     DateOrder = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReceiptValue = table.Column<float>(type: "real", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    TaxId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VendorReplenishReceipts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_VendorReplenishReceipts_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_VendorReplenishReceipts_Taxes_TaxId",
+                        column: x => x.TaxId,
+                        principalTable: "Taxes",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_VendorReplenishReceipts_Vendors_VendorId",
                         column: x => x.VendorId,
@@ -451,8 +429,8 @@ namespace WareHouseManagement.Migrations
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    PriceOfOne = table.Column<int>(type: "int", nullable: false),
-                    TotalPrice = table.Column<int>(type: "int", nullable: false)
+                    PriceOfOne = table.Column<float>(type: "real", nullable: false),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -474,12 +452,13 @@ namespace WareHouseManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ExportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -489,12 +468,6 @@ namespace WareHouseManagement.Migrations
                         column: x => x.ReceiptId,
                         principalTable: "CustomerBuyReceipts",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_StockExportForms_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -502,22 +475,17 @@ namespace WareHouseManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ImportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ServiceRegisteredFromId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_StockImportForms", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StockImportForms_ServiceRegistereds_ServiceRegisteredFromId",
-                        column: x => x.ServiceRegisteredFromId,
-                        principalTable: "ServiceRegistereds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_StockImportForms_VendorReplenishReceipts_ReceiptId",
                         column: x => x.ReceiptId,
@@ -532,8 +500,8 @@ namespace WareHouseManagement.Migrations
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ReceiptId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    PriceOfOne = table.Column<int>(type: "int", nullable: false),
-                    TotalPrice = table.Column<int>(type: "int", nullable: false)
+                    PriceOfOne = table.Column<float>(type: "real", nullable: false),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -663,24 +631,14 @@ namespace WareHouseManagement.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomerBuyReceipts_ServiceRegisteredFromId",
+                name: "IX_CustomerBuyReceipts_TaxId",
                 table: "CustomerBuyReceipts",
-                column: "ServiceRegisteredFromId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CustomerGroups_ServiceRegisteredFromId",
-                table: "CustomerGroups",
-                column: "ServiceRegisteredFromId");
+                column: "TaxId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Customers_CustomerGroupId",
                 table: "Customers",
                 column: "CustomerGroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Customers_ServiceRegisteredFromId",
-                table: "Customers",
-                column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExportDetails_FormId",
@@ -708,25 +666,10 @@ namespace WareHouseManagement.Migrations
                 column: "ProductTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_ServiceRegisteredFromId",
-                table: "Products",
-                column: "ServiceRegisteredFromId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductTypes_ServiceRegisteredFromId",
-                table: "ProductTypes",
-                column: "ServiceRegisteredFromId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_StockExportForms_ReceiptId",
                 table: "StockExportForms",
                 column: "ReceiptId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StockExportForms_ServiceRegisteredFromId",
-                table: "StockExportForms",
-                column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StockImportForms_ReceiptId",
@@ -735,24 +678,9 @@ namespace WareHouseManagement.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockImportForms_ServiceRegisteredFromId",
-                table: "StockImportForms",
-                column: "ServiceRegisteredFromId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Stocks_ServiceRegisteredFromId",
-                table: "Stocks",
-                column: "ServiceRegisteredFromId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Stocks_WarehouseId",
                 table: "Stocks",
                 column: "WarehouseId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VendorGroups_ServiceRegisteredFromId",
-                table: "VendorGroups",
-                column: "ServiceRegisteredFromId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendorReplenishReceiptDetails_ReceiptId",
@@ -760,9 +688,9 @@ namespace WareHouseManagement.Migrations
                 column: "ReceiptId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VendorReplenishReceipts_ServiceRegisteredFromId",
+                name: "IX_VendorReplenishReceipts_TaxId",
                 table: "VendorReplenishReceipts",
-                column: "ServiceRegisteredFromId");
+                column: "TaxId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendorReplenishReceipts_VendorId",
@@ -770,19 +698,9 @@ namespace WareHouseManagement.Migrations
                 column: "VendorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Vendors_ServiceRegisteredFromId",
-                table: "Vendors",
-                column: "ServiceRegisteredFromId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Vendors_VendorGroupId",
                 table: "Vendors",
                 column: "VendorGroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Warehouses_ServiceRegisteredFromId",
-                table: "Warehouses",
-                column: "ServiceRegisteredFromId");
         }
 
         /// <inheritdoc />
@@ -837,6 +755,9 @@ namespace WareHouseManagement.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
+                name: "ServiceRegistereds");
+
+            migrationBuilder.DropTable(
                 name: "CustomerBuyReceipts");
 
             migrationBuilder.DropTable(
@@ -849,6 +770,9 @@ namespace WareHouseManagement.Migrations
                 name: "Customers");
 
             migrationBuilder.DropTable(
+                name: "Taxes");
+
+            migrationBuilder.DropTable(
                 name: "Vendors");
 
             migrationBuilder.DropTable(
@@ -856,9 +780,6 @@ namespace WareHouseManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "VendorGroups");
-
-            migrationBuilder.DropTable(
-                name: "ServiceRegistereds");
         }
     }
 }

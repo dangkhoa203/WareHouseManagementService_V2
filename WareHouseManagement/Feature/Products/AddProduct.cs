@@ -24,7 +24,7 @@ namespace WareHouseManagement.Feature.Products {
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var validator = new Validator();
             var validatedresult = validator.Validate(request);
             if (!validatedresult.IsValid) {
@@ -35,7 +35,7 @@ namespace WareHouseManagement.Feature.Products {
                 MeasureUnit = request.measureUnit,
                 PricePerUnit = request.pricePerUnit,
                 ProductType = await context.ProductTypes.FindAsync(request.typeId),
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.Products.AddAsync(product);
             if (await context.SaveChangesAsync() > 0) {

@@ -9,7 +9,7 @@ namespace WareHouseManagement.Feature.Products
 {
     public class GetProducts:IEndpoint
     {
-        public record productDTO(string id, string name, int pricePerUnit, string measureUnit, string? typeName, DateTime createDate);
+        public record productDTO(string id, string name, float pricePerUnit, string measureUnit, string? typeName, DateTime createDate);
         public record Response(bool success, List<productDTO> data, string errorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
@@ -18,14 +18,14 @@ namespace WareHouseManagement.Feature.Products
         [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var products = await context.Products
                     .Include(p => p.ProductType)
-                    .Where(p => p.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(p => p.ServiceId == serviceId)
                     .OrderByDescending(p => p.CreatedDate)
                     .Select(p => new productDTO(
                         p.Id,

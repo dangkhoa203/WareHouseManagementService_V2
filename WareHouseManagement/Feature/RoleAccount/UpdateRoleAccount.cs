@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Enum;
 
@@ -47,7 +47,7 @@ namespace WareHouseManagement.Feature.RoleAccount {
             Account account = await userManager.FindByIdAsync(request.id);
             if (account != null) {
                 if (!validator.checkSame(request, account) && !await userManager.CheckPasswordAsync(account, request.password)) {
-                    account.UserName = $"{service.Name}-{request.userName}";
+                    account.UserName = $"{account.UserName.Substring(0,7)}-{request.userName}";
                     var token = await userManager.GeneratePasswordResetTokenAsync(account);
                     await userManager.ChangePasswordAsync(account, token, request.password);
                     account.FullName = request.userName;

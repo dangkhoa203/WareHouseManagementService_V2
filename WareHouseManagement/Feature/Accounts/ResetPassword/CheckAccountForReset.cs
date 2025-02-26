@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.Accounts.ResetPassword
-{
+namespace WareHouseManagement.Feature.Accounts.ResetPassword {
     public class CheckAccountForReset : IEndpoint
     {
         public record Response(bool success);

@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.Accounts
-{
+namespace WareHouseManagement.Feature.Accounts {
     public class ConfirmAccount : IEndpoint
     {
         public record Response(bool success,string errorMessage);

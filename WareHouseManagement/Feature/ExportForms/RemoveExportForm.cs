@@ -15,16 +15,17 @@ namespace WareHouseManagement.Feature.ExportForms {
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-            var service = context.Users
+            var serviceId = context.Users
                 .Include(u => u.ServiceRegistered)
                 .Where(u => u.UserName == user.Identity.Name)
-                .Select(u => u.ServiceRegistered)
+                .Select(u => u.ServiceId)
                 .FirstOrDefault();
             var form = await context.StockExportForms
-                .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                .Where(u => u.ServiceId == serviceId)
                 .FirstOrDefaultAsync(u => u.Id == request.id);
             if (form != null) {
                 form.IsDeleted = true;
+                form.DeletedAt = DateTime.Now;
                 var result = await context.SaveChangesAsync();
                 if (result > 0)
                     return Results.Ok(new Response(true, ""));

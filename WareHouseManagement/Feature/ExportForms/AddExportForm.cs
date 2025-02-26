@@ -29,7 +29,7 @@ namespace WareHouseManagement.Feature.ExportForms {
             if (!validatedresult.IsValid) {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var receipt = await context.CustomerBuyReceipts.Include(re => re.Details).FirstOrDefaultAsync(re => re.Id == request.receiptId);
             if (receipt == null)
                 return Results.BadRequest(new Response(false, "không tìm thấy hóa đơn!", validatedresult));
@@ -66,19 +66,19 @@ namespace WareHouseManagement.Feature.ExportForms {
                 ReceiptId = request.receiptId,
                 ExportDate = request.dateOfExport,
                 Details = details,
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.StockExportForms.AddAsync(form);
 
             if (request.updateStock)
-                await exportStock(details, context, service);
+                await exportStock(details, context, serviceId);
 
             if (await context.SaveChangesAsync() > 0) {
                 return Results.Ok(new Response(true, "", validatedresult));
             }
             return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
         }
-        private static async Task exportStock(List<ExportFormDetail> details, ApplicationDbContext context, ServiceRegistered service) {
+        private static async Task exportStock(List<ExportFormDetail> details, ApplicationDbContext context, string serviceId) {
             foreach (var de in details) {
                 var stock = await context.Stocks.Where(s => s.WarehouseId == de.WarehouseId).FirstOrDefaultAsync(s => s.ProductId == de.ProductId);
                 stock.Quantity -= de.Quantity;

@@ -32,7 +32,7 @@ namespace WareHouseManagement.Feature.Customers
         [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user)
         {
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var validator = new Validator();
             var validatedresult = validator.Validate(request);
             if (!validatedresult.IsValid)
@@ -46,7 +46,7 @@ namespace WareHouseManagement.Feature.Customers
                 Email = request.email,
                 PhoneNumber = request.phone,
                 CustomerGroup = await context.CustomerGroups.FindAsync(request.groupId),
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.Customers.AddAsync(customer);
             if (await context.SaveChangesAsync() > 0)

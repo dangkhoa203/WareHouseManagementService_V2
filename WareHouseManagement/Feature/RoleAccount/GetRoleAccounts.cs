@@ -16,13 +16,13 @@ namespace WareHouseManagement.Feature.RoleAccount {
         [Authorize(Roles = Permission.Admin)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var accounts = await context.Users
-                    .Where(u => u.ServiceId == service.Id)
+                    .Where(u => u.ServiceId == serviceId)
                     .OrderByDescending(u => u.CreateDate)
                     .Select(u => new accountDTO(
                         u.Id,

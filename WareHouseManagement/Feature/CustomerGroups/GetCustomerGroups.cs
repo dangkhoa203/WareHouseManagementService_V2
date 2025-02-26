@@ -17,13 +17,13 @@ namespace WareHouseManagement.Feature.CustomerGroups {
         [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
             try {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var groups = await context.CustomerGroups
-                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.ServiceId == serviceId)
                     .OrderByDescending(u => u.CreatedDate)
                     .Select(u => new groupDTO(u.Id, u.Name, u.Description, u.CreatedDate))
                     .ToListAsync();

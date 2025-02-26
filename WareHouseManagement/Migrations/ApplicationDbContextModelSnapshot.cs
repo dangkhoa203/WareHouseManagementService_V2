@@ -155,7 +155,7 @@ namespace WareHouseManagement.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Account", b =>
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Account.Account", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -236,6 +236,16 @@ namespace WareHouseManagement.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Account.ServiceRegistered", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServiceRegistereds");
+                });
+
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Customer_Entity.Customer", b =>
                 {
                     b.Property<string>("Id")
@@ -269,14 +279,13 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ServiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerGroupId");
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.ToTable("Customers");
                 });
@@ -303,12 +312,11 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ServiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.ToTable("CustomerGroups");
                 });
@@ -335,20 +343,19 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PricePerUnit")
-                        .HasColumnType("int");
+                    b.Property<float>("PricePerUnit")
+                        .HasColumnType("real");
 
                     b.Property<string>("ProductTypeId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ServiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductTypeId");
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.ToTable("Products");
                 });
@@ -375,52 +382,13 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceRegisteredFromId");
-
-                    b.ToTable("ProductTypes");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.ServiceRegistered", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("ServiceId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceRegistereds");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Stock", b =>
-                {
-                    b.Property<string>("ProductId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("WarehouseId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ServiceRegisteredFromId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ProductId", "WarehouseId");
-
-                    b.HasIndex("ServiceRegisteredFromId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("Stocks");
+                    b.ToTable("ProductTypes");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_EntiTy.Vendor", b =>
@@ -453,16 +421,14 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<string>("ServiceId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VendorGroupId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.HasIndex("VendorGroupId");
 
@@ -491,15 +457,35 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<string>("ServiceId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ServiceRegisteredFromId");
-
                     b.ToTable("VendorGroups");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Stock", b =>
+                {
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("WarehouseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductId", "WarehouseId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("Stocks");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", b =>
@@ -528,13 +514,11 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<string>("ServiceId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.ToTable("Warehouses");
                 });
@@ -606,16 +590,17 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<string>("ServiceId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiptId")
                         .IsUnique();
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.ToTable("StockExportForms");
                 });
@@ -641,16 +626,17 @@ namespace WareHouseManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<string>("ServiceId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiptId")
                         .IsUnique();
-
-                    b.HasIndex("ServiceRegisteredFromId");
 
                     b.ToTable("StockImportForms");
                 });
@@ -675,14 +661,24 @@ namespace WareHouseManagement.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<float>("ReceiptValue")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ServiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TaxId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("ServiceRegisteredFromId");
+                    b.HasIndex("TaxId");
 
                     b.ToTable("CustomerBuyReceipts");
                 });
@@ -695,20 +691,54 @@ namespace WareHouseManagement.Migrations
                     b.Property<string>("ReceiptId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("PriceOfOne")
-                        .HasColumnType("int");
+                    b.Property<float>("PriceOfOne")
+                        .HasColumnType("real");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("TotalPrice")
-                        .HasColumnType("int");
+                    b.Property<float>("TotalPrice")
+                        .HasColumnType("real");
 
                     b.HasKey("ProductId", "ReceiptId");
 
                     b.HasIndex("ReceiptId");
 
                     b.ToTable("CustomerBuyReceiptDetails");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Receipt.Tax", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Percent")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ServiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Taxes");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.VendorReplenishReceipt", b =>
@@ -728,8 +758,17 @@ namespace WareHouseManagement.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ServiceRegisteredFromId")
+                    b.Property<float>("ReceiptValue")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ServiceId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TaxId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("VendorId")
@@ -737,7 +776,7 @@ namespace WareHouseManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ServiceRegisteredFromId");
+                    b.HasIndex("TaxId");
 
                     b.HasIndex("VendorId");
 
@@ -752,14 +791,14 @@ namespace WareHouseManagement.Migrations
                     b.Property<string>("ReceiptId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("PriceOfOne")
-                        .HasColumnType("int");
+                    b.Property<float>("PriceOfOne")
+                        .HasColumnType("real");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("TotalPrice")
-                        .HasColumnType("int");
+                    b.Property<float>("TotalPrice")
+                        .HasColumnType("real");
 
                     b.HasKey("ProductId", "ReceiptId");
 
@@ -779,7 +818,7 @@ namespace WareHouseManagement.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.Account", null)
+                    b.HasOne("WareHouseManagement.Model.Entity.Account.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -788,7 +827,7 @@ namespace WareHouseManagement.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.Account", null)
+                    b.HasOne("WareHouseManagement.Model.Entity.Account.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -803,7 +842,7 @@ namespace WareHouseManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WareHouseManagement.Model.Entity.Account", null)
+                    b.HasOne("WareHouseManagement.Model.Entity.Account.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -812,16 +851,16 @@ namespace WareHouseManagement.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.Account", null)
+                    b.HasOne("WareHouseManagement.Model.Entity.Account.Account", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Account", b =>
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Account.Account", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegistered")
+                    b.HasOne("WareHouseManagement.Model.Entity.Account.ServiceRegistered", "ServiceRegistered")
                         .WithMany("Accounts")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -836,22 +875,7 @@ namespace WareHouseManagement.Migrations
                         .WithMany("Customers")
                         .HasForeignKey("CustomerGroupId");
 
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId");
-
                     b.Navigation("CustomerGroup");
-
-                    b.Navigation("ServiceRegisteredFrom");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Customer_Entity.CustomerGroup", b =>
-                {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId");
-
-                    b.Navigation("ServiceRegisteredFrom");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Product_Entity.Product", b =>
@@ -860,37 +884,25 @@ namespace WareHouseManagement.Migrations
                         .WithMany("Products")
                         .HasForeignKey("ProductTypeId");
 
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId");
-
                     b.Navigation("ProductType");
-
-                    b.Navigation("ServiceRegisteredFrom");
                 });
 
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Product_Entity.ProductType", b =>
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_EntiTy.Vendor", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId");
+                    b.HasOne("WareHouseManagement.Model.Entity.Vendor_Entity.VendorGroup", "VendorGroup")
+                        .WithMany("Vendors")
+                        .HasForeignKey("VendorGroupId");
 
-                    b.Navigation("ServiceRegisteredFrom");
+                    b.Navigation("VendorGroup");
                 });
 
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Stock", b =>
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Stock", b =>
                 {
                     b.HasOne("WareHouseManagement.Model.Entity.Product_Entity.Product", "ProductNav")
                         .WithMany("Stocks")
                         .HasForeignKey("ProductId")
                         .IsRequired()
                         .HasConstraintName("FK_stock_product");
-
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.HasOne("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", "WarehouseNav")
                         .WithMany("Stocks")
@@ -900,48 +912,7 @@ namespace WareHouseManagement.Migrations
 
                     b.Navigation("ProductNav");
 
-                    b.Navigation("ServiceRegisteredFrom");
-
                     b.Navigation("WarehouseNav");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_EntiTy.Vendor", b =>
-                {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WareHouseManagement.Model.Entity.Vendor_Entity.VendorGroup", "VendorGroup")
-                        .WithMany("Vendors")
-                        .HasForeignKey("VendorGroupId");
-
-                    b.Navigation("ServiceRegisteredFrom");
-
-                    b.Navigation("VendorGroup");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_Entity.VendorGroup", b =>
-                {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ServiceRegisteredFrom");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.Warehouse_Entity.Warehouse", b =>
-                {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ServiceRegisteredFrom");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Form.ExportFormDetail", b =>
@@ -1005,15 +976,7 @@ namespace WareHouseManagement.Migrations
                         .HasForeignKey("WareHouseManagement.Model.Form.StockExportForm", "ReceiptId")
                         .IsRequired();
 
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Receipt");
-
-                    b.Navigation("ServiceRegisteredFrom");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Form.StockImportForm", b =>
@@ -1023,15 +986,7 @@ namespace WareHouseManagement.Migrations
                         .HasForeignKey("WareHouseManagement.Model.Form.StockImportForm", "ReceiptId")
                         .IsRequired();
 
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Receipt");
-
-                    b.Navigation("ServiceRegisteredFrom");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.CustomerBuyReceipt", b =>
@@ -1040,13 +995,13 @@ namespace WareHouseManagement.Migrations
                         .WithMany("CustomerBuyReceipts")
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId");
+                    b.HasOne("WareHouseManagement.Model.Receipt.Tax", "Tax")
+                        .WithMany("CustomerReceipts")
+                        .HasForeignKey("TaxId");
 
                     b.Navigation("Customer");
 
-                    b.Navigation("ServiceRegisteredFrom");
+                    b.Navigation("Tax");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.CustomerBuyReceiptDetail", b =>
@@ -1070,17 +1025,15 @@ namespace WareHouseManagement.Migrations
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.VendorReplenishReceipt", b =>
                 {
-                    b.HasOne("WareHouseManagement.Model.Entity.ServiceRegistered", "ServiceRegisteredFrom")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegisteredFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("WareHouseManagement.Model.Receipt.Tax", "Tax")
+                        .WithMany("VendorReceipts")
+                        .HasForeignKey("TaxId");
 
                     b.HasOne("WareHouseManagement.Model.Entity.Vendor_EntiTy.Vendor", "Vendor")
                         .WithMany("VendorReplenishReceipts")
                         .HasForeignKey("VendorId");
 
-                    b.Navigation("ServiceRegisteredFrom");
+                    b.Navigation("Tax");
 
                     b.Navigation("Vendor");
                 });
@@ -1102,6 +1055,11 @@ namespace WareHouseManagement.Migrations
                     b.Navigation("ProductNav");
 
                     b.Navigation("ReceiptNav");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Entity.Account.ServiceRegistered", b =>
+                {
+                    b.Navigation("Accounts");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Customer_Entity.Customer", b =>
@@ -1130,11 +1088,6 @@ namespace WareHouseManagement.Migrations
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Product_Entity.ProductType", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("WareHouseManagement.Model.Entity.ServiceRegistered", b =>
-                {
-                    b.Navigation("Accounts");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Entity.Vendor_EntiTy.Vendor", b =>
@@ -1171,6 +1124,13 @@ namespace WareHouseManagement.Migrations
                     b.Navigation("Details");
 
                     b.Navigation("StockExportReport");
+                });
+
+            modelBuilder.Entity("WareHouseManagement.Model.Receipt.Tax", b =>
+                {
+                    b.Navigation("CustomerReceipts");
+
+                    b.Navigation("VendorReceipts");
                 });
 
             modelBuilder.Entity("WareHouseManagement.Model.Receipt.VendorReplenishReceipt", b =>

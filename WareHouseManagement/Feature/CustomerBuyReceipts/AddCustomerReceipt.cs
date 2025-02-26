@@ -13,7 +13,7 @@ using WareHouseManagement.Model.Enum;
 namespace WareHouseManagement.Feature.CustomerBuyReceipts {
     public class AddCustomerReceipt : IEndpoint {
         public record detailDTO(string productId,int quantity);
-        public record Request(string customerId,DateTime dateOfOrder,List<detailDTO> details);
+        public record Request(string customerId,string taxId,DateTime dateOfOrder,List<detailDTO> details);
         public record Response(bool success, string errorMessage, ValidationResult? error);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
@@ -30,7 +30,7 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
             if (!validatedresult.IsValid) {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             var detail = new List<CustomerBuyReceiptDetail>();
             foreach (var re in request.details) {
                 var newdetail = new CustomerBuyReceiptDetail();
@@ -43,8 +43,10 @@ namespace WareHouseManagement.Feature.CustomerBuyReceipts {
             var receipt = new CustomerBuyReceipt() {
                 Customer = await context.Customers.FindAsync(request.customerId),
                 DateOrder = request.dateOfOrder,
+                Tax = await context.Taxes.FindAsync(request.taxId),
+                ReceiptValue = detail.Sum(d => d.TotalPrice),
                 Details = detail,
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.CustomerBuyReceipts.AddAsync(receipt);
             if (await context.SaveChangesAsync() > 0) {

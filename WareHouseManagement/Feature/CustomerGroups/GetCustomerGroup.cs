@@ -23,13 +23,13 @@ namespace WareHouseManagement.Feature.CustomerGroups
         {
             try
             {
-                var service = context.Users
+                var serviceId = context.Users
                     .Include(u => u.ServiceRegistered)
                     .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
+                    .Select(u => u.ServiceId)
                     .FirstOrDefault();
                 var group = await context.CustomerGroups
-                    .Where(u => u.ServiceRegisteredFrom.Id == service.Id)
+                    .Where(u => u.ServiceId == serviceId)
                     .OrderByDescending(u => u.CreatedDate)
                     .Where(u=>u.Id==id)
                     .Select(u => new groupDTO(u.Id, u.Name, u.Description, u.CreatedDate))

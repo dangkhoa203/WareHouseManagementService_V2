@@ -35,12 +35,12 @@ namespace WareHouseManagement.Feature.ProductTypes
             {
                 return Results.BadRequest(new Response(false, "", validatedresult));
             }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
+            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
             ProductType Type = new()
             {
                 Name = request.name,
                 Description = request.description,
-                ServiceRegisteredFrom = service,
+                ServiceId = serviceId,
             };
             await context.ProductTypes.AddAsync(Type);
             if (await context.SaveChangesAsync() > 0)
