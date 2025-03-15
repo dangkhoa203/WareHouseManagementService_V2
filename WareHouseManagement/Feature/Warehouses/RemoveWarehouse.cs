@@ -7,34 +7,42 @@ using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Warehouses {
-    public class RemoveWarehouse:IEndpoint {
-        public record Request(string id);
-        public record Response(bool success, string errorMessage);
+    public class RemoveWarehouse : IEndpoint {
+        public record Request(string Id);
+        public record Response(bool Success, string ErrorMessage);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapDelete("/api/Wareehouses/", Handler).WithTags("Warehouses");
+            app.MapDelete("/api/Warehouses/", Handler).WithTags("Warehouses");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Warehouse)]
-        private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-            var serviceId = context.Users
-                .Include(u => u.ServiceRegistered)
-                .Where(u => u.UserName == user.Identity.Name)
-                .Select(u => u.ServiceId)
-                .FirstOrDefault();
-            var warehouse = await context.Warehouses
-                .Include(w=>w.Stocks)
-                .Where(u => u.ServiceId == serviceId)
-                .FirstOrDefaultAsync(u => u.Id == request.id);
-            if (warehouse != null) {
-                if (warehouse.Stocks.Count !=0) {
+        private static async Task<IResult> Handler([FromBody] Request request, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var ServiceId = await context.Users
+                        .Include(u => u.ServiceRegistered)
+                        .Where(u => u.UserName == User.Identity.Name)
+                        .Select(u => u.ServiceId)
+                        .FirstOrDefaultAsync();
+
+                var Warehouse = await context.Warehouses
+                    .Include(warehouse => warehouse.Stocks)
+                    .Where(warehouse => warehouse.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(warehouse => warehouse.Id == request.Id);
+
+                if (Warehouse != null) {
+                    if (Warehouse.Stocks.Count != 0) {
+                        return Results.BadRequest(new Response(false, "Lỗi đã xảy ra!"));
+                    }
+                    context.Warehouses.Remove(Warehouse);
+                    var Result = await context.SaveChangesAsync();
+                    if (Result > 0)
+                        return Results.Ok(new Response(true, ""));
                     return Results.BadRequest(new Response(false, "Lỗi đã xảy ra!"));
                 }
-                context.Warehouses.Remove(warehouse);
-                var result = await context.SaveChangesAsync();
-                if (result > 0)
-                    return Results.Ok(new Response(true, ""));
-                return Results.BadRequest(new Response(false, "Lỗi đã xảy ra!"));
+
+                return Results.NotFound(new Response(false, "Không tìm thấy nhóm!"));
             }
-            return Results.NotFound(new Response(false, "Không tìm thấy nhóm!"));
+            catch (Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra!"));
+            }
         }
     }
 }

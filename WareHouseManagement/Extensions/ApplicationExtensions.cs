@@ -10,7 +10,9 @@ using WareHouseManagement.Feature.Customers;
 using WareHouseManagement.Feature.ImportForm;
 using WareHouseManagement.Feature.Products;
 using WareHouseManagement.Feature.ProductTypes;
+using WareHouseManagement.Feature.RoleAccount;
 using WareHouseManagement.Feature.Stocks;
+using WareHouseManagement.Feature.Taxes;
 using WareHouseManagement.Feature.VendorGroups;
 using WareHouseManagement.Feature.VendorReplenishReceipts;
 using WareHouseManagement.Feature.Vendors;
@@ -85,12 +87,20 @@ namespace WareHouseManagement.Extensions {
             RemoveCustomerReceipt.MapEndpoint(app);
             GetCustomerReceipts.MapEndpoint(app);
             GetCustomerReceipt.MapEndpoint(app);
+            UpdateCustomerReceiptStatus.MapEndpoint(app);
         }
         private static void AddVendorReceiptSevice(this WebApplication app) {
             AddVendorReceipt.MapEndpoint(app);
             RemoveVendorReceipt.MapEndpoint(app);
             GetVendorReceipts.MapEndpoint(app);
             GetVendorReceipt.MapEndpoint(app);
+            UpdateVendorReceiptStatus.MapEndpoint(app);
+        }
+        private static void AddTaxesService(this WebApplication app) {
+            AddTax.MapEndpoint(app);
+            RemoveTax.MapEndpoint(app);
+            GetTaxes.MapEndpoint(app);
+            GetTax.MapEndpoint(app);
         }
         private static void AddStockService(this WebApplication app) {
             AddStocks.MapEndpoint(app);
@@ -104,6 +114,12 @@ namespace WareHouseManagement.Extensions {
             GetImportForms.MapEndpoint(app);
             GetImportForm.MapEndpoint(app);
         }
+        private static void AddRoleAccountService(this WebApplication app) {
+            AddRoleAccount.MapEndpoint(app);
+            RemoveRoleAccount.MapEndpoint(app);
+            GetRoleAccounts.MapEndpoint(app);
+            GetRoleAccount.MapEndpoint(app);
+        }
         public static void AddAllEndPoint(this WebApplication app) {
             AddAccountService(app);
             AddCustomerService(app);
@@ -112,8 +128,10 @@ namespace WareHouseManagement.Extensions {
             AddWarehouseSevice(app);
             AddCustomerReceiptService(app);
             AddVendorReceiptSevice(app);
+            AddTaxesService(app);
             AddStockService(app);
             AddImportFormService(app);
+            AddRoleAccountService(app);
         }
     }
 }

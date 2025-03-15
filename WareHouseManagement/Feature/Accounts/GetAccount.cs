@@ -8,28 +8,25 @@ using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 
 namespace WareHouseManagement.Feature.Accounts {
-    public class GetAccount:IEndpoint
-    {
-        public record Response(string username,string userfullname,string useremail,string userid,bool islogged);
-        public static void MapEndpoint(IEndpointRouteBuilder app)
-        {
+    public class GetAccount : IEndpoint {
+        public record Response(string Username, string Userfullname, string Useremail, string Userid, bool Islogged);
+        public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapGet("/api/Account/", Handler).WithTags("Account");
         }
-        private static async Task<IResult> Handler(UserManager<Account> userManager,SignInManager<Account> signInManager,ApplicationDbContext context, ClaimsPrincipal user)
-        {
-            if (user.Identity.Name != null)
-            {
-                Account info = await userManager.FindByNameAsync(user.Identity.Name);
-                await signInManager.RefreshSignInAsync(info);
-                return Results.Ok(new Response(
-                    info.UserName,
-                    info.FullName,
-                    info.Email,
-                    info.Id,
-                    true
-                    ));
+        private static async Task<IResult> Handler(UserManager<Account> userManager, SignInManager<Account> signInManager, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                if (User.Identity.Name == null)
+                    return Results.Ok(new Response("", "", "", "", false));
+
+                Account Info = await userManager.FindByNameAsync(User.Identity.Name);
+                await signInManager.RefreshSignInAsync(Info);
+
+                return Results.Ok(new Response(Info.UserName, Info.FullName, Info.Email, Info.Id, true));
             }
-            return Results.Ok(new Response("", "", "", "", false));
+            catch (Exception ex) {
+                return Results.Ok(new Response("", "", "", "", false));
+            }
+
         }
     }
 }

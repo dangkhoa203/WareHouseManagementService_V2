@@ -17,7 +17,7 @@ namespace WareHouseManagement.Model.Receipt
             Status = StatusEnum.Draft;
         }
         public virtual Tax? Tax { get; set; }
-        public virtual StockImportForm? StockImportReport { get; set; }
+        public virtual ICollection<ImportForm> StockImportReports { get; set; }
         public virtual Vendor Vendor { get; set; }
         public virtual ICollection<VendorReplenishReceiptDetail> Details { get; set; }
     }

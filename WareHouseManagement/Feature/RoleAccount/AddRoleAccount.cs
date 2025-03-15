@@ -11,46 +11,58 @@ using WareHouseManagement.Model.Entity.Account;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.RoleAccount {
-    public class AddRoleAccount:IEndpoint {
-        public record Request(string idName,string userName, string password, string confirmPassword, string fullName, List<string> roles);
-        public record Response(bool success, string errorMessage, ValidationResult? validateError);
+    public class AddRoleAccount : IEndpoint {
+        public record Request(string UserName, string Password, string ConfirmPassword, string FullName, List<string> Roles);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? validateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.userName).NotEmpty().WithMessage("Chưa nhập tên");
-                RuleFor(r => r.password).NotEmpty().WithMessage("Chưa nhập mật khẩu");
-                RuleFor(r => r.password).MinimumLength(3).WithMessage("Phải nhập tối thiểu 3 ký tự");
-                RuleFor(r => r.confirmPassword).Equal(r => r.password).WithMessage("Xác nhận mật khẩu chưa hợp lệ");
+                RuleFor(r => r.UserName).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.Password).NotEmpty().WithMessage("Chưa nhập mật khẩu");
+                RuleFor(r => r.Password).MinimumLength(3).WithMessage("Phải nhập tối thiểu 3 ký tự");
+                RuleFor(r => r.ConfirmPassword).Equal(r => r.Password).WithMessage("Xác nhận mật khẩu chưa hợp lệ");
+                RuleFor(r => r.Roles).NotEmpty().WithMessage("Chưa có quyền");
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapPost("/api/Account/Role", Handler).WithTags("Account");
         }
-        [Authorize(Roles =Permission.Admin)]
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, UserManager<Account> userManager, SignInManager<Account> signInManager, ClaimsPrincipal user) {
-            var validator = new Validator();
-            var validateresult = await validator.ValidateAsync(request);
-            if (!validateresult.IsValid) {
-                return Results.BadRequest(new Response(false, "Lỗi xảy ra", validateresult));
-            }
-            if (await userManager.FindByNameAsync(request.userName) != null) {
-                return Results.BadRequest(new Response(false, "Tên đăng nhập đang sử dụng!", validateresult));
-            }
+        [Authorize(Roles = Permission.Admin)]
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, UserManager<Account> userManager, SignInManager<Account> signInManager, ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidateResult = await Validator.ValidateAsync(request);
+                if (!ValidateResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "Lỗi xảy ra", ValidateResult));
+                }
+                if (await userManager.FindByNameAsync(request.UserName) != null) {
+                    return Results.BadRequest(new Response(false, "Tên đăng nhập đang sử dụng!", ValidateResult));
+                }
 
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
-            Account account = new() {
-                UserName = $"ACC{Nanoid.Generate(Nanoid.Alphabets.Digits,5)}-{request.userName}",
-                FullName = request.fullName,
-                EmailConfirmed=true,
-                ServiceRegistered = service,
-            };
-           
-            var result = await userManager.CreateAsync(account, request.password);
-            if (result.Succeeded) {
-                var newUser=await userManager.FindByNameAsync(account.UserName);
-                await userManager.AddToRolesAsync(newUser, request.roles);
-                return Results.Ok(new Response(true, "", validateresult));
+                var Service = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceRegistered)
+                       .FirstOrDefaultAsync();
+
+                Account Account = new() {
+                    UserName = $"ACC{Nanoid.Generate(Nanoid.Alphabets.Digits, 5)}-{request.UserName}",
+                    FullName = request.FullName,
+                    EmailConfirmed = true,
+                    ServiceRegistered = Service,
+                };
+
+                var Result = await userManager.CreateAsync(Account, request.Password);
+                if (Result.Succeeded) {
+                    var NewUser = await userManager.FindByNameAsync(Account.UserName);
+                    await userManager.AddToRolesAsync(NewUser, request.Roles);
+                    return Results.Ok(new Response(true, "", ValidateResult));
+                }
+
+                return Results.BadRequest(new Response(false, "Lỗi đã xảy ra", ValidateResult));
             }
-            return Results.BadRequest(new Response(false, "Lỗi đã xảy ra", validateresult));
+            catch (Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra", null));
+            }
         }
 
     }

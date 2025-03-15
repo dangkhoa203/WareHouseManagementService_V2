@@ -4,16 +4,17 @@ using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
+using WareHouseManagement.Model.Receipt;
 
-namespace WareHouseManagement.Feature.VendorGroups {
-    public class GetVendorGroup : IEndpoint {
-        public record GroupDTO(string Id, string Name, string Description, DateTime DateCreated);
-        public record Response(bool Success, GroupDTO data, string ErrorMessage);
+namespace WareHouseManagement.Feature.Taxes {
+    public class GetTax : IEndpoint {
+        public record TaxDTO(string Id, string Name, string Description, float Percent, DateTime DateCreated);
+        public record Response(bool Success, TaxDTO Data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendor-Groups/{id}", Handler).WithTags("Vendor Groups");
+            app.MapGet("/api/Taxes/{id}", Handler).WithTags("Taxes");
         }
-        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
+        [Authorize(Roles = Permission.Admin + "," + Permission.Tax)]
         private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal User) {
             try {
                 var ServiceId = await context.Users
@@ -22,16 +23,16 @@ namespace WareHouseManagement.Feature.VendorGroups {
                    .Select(u => u.ServiceId)
                    .FirstOrDefaultAsync();
 
-                var Group = await context.VendorGroups
-                    .Where(group => group.ServiceId == ServiceId)
-                    .FirstOrDefaultAsync(group => group.Id == id);
+                var Tax = await context.Taxes
+                    .Where(tax => tax.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(tax => tax.Id == id);
 
-                if (Group == null)
+                if (Tax == null)
                     return Results.NotFound(new Response(false, null, "Không tìm thấy dữ liệu!"));
-                if(Group.IsDeleted)
+                if (Tax.IsDeleted)
                     return Results.NotFound(new Response(false, null, "Dữ liệu đã xóa!"));
 
-                var Data = new GroupDTO(Group.Id, Group.Name, Group.Description, Group.CreatedDate);
+                var Data = new TaxDTO(Tax.Id, Tax.Name, Tax.Description, Tax.Percent, Tax.CreatedDate);
                 return Results.Ok(new Response(true, Data, ""));
             }
             catch (Exception ex) {

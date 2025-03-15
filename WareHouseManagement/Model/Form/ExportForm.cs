@@ -6,16 +6,16 @@ using WareHouseManagement.Model.Receipt;
 
 namespace WareHouseManagement.Model.Form
 {
-    public class StockExportForm: EntityGeneric {
+    public class ExportForm: EntityGeneric {
         public string ReceiptId { get; set; }
         public required DateTime ExportDate { get; set; }
         public StatusEnum Status { get; set; }
-        public StockExportForm():base()
+        public ExportForm():base()
         {
             Id= $"XUATKHO-{Nanoid.Generate(Nanoid.Alphabets.LowercaseLettersAndDigits, 5)}";
             Status = StatusEnum.Draft ;
         }
-        public virtual CustomerBuyReceipt? Receipt { get; set; }
-        public virtual ICollection<ExportFormDetail>? Details { get; set; }
+        public virtual CustomerBuyReceipt Receipt { get; set; }
+        public virtual ICollection<ExportFormDetail> Details { get; set; }
     }
 }

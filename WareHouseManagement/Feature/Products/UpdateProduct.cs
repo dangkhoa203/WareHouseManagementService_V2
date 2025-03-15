@@ -10,50 +10,63 @@ using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Products {
     public class UpdateProduct {
-        public record Request(string id, string name, int pricePerUnit, string measureUnit, string? typeId);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
+        public record Request(string Id, string Name, int PricePerUnit, string MeasureUnit, string? TypeId);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
-                RuleFor(r => r.pricePerUnit).GreaterThan(-1).WithMessage("Giá chưa phù hợp");
-                RuleFor(r => r.measureUnit).NotEmpty().WithMessage("Chưa nhập đơn vị tính");
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.PricePerUnit).GreaterThan(-1).WithMessage("Giá chưa phù hợp");
+                RuleFor(r => r.MeasureUnit).NotEmpty().WithMessage("Chưa nhập đơn vị tính");
             }
-            private record checkmodel(string name, float pricePerUnit, string measureUnit, string? typeId);
-            public bool checkSame(Request request, Product product) {
-                checkmodel newDetail = new checkmodel(request.name, request.pricePerUnit, request.measureUnit, request.typeId);
-                checkmodel oldDetail = new checkmodel(product.Name, product.PricePerUnit, product.MeasureUnit, product.ProductType != null ? product.ProductType.Id : "");
-                return oldDetail == newDetail;
+            private record Checkmodel(string name, float pricePerUnit, string measureUnit, string? typeId);
+            public bool CheckSame(Request request, Product Product) {
+                Checkmodel NewDetail = new (request.Name, request.PricePerUnit, request.MeasureUnit, request.TypeId);
+                Checkmodel OldDetail = new (Product.Name, Product.PricePerUnit, Product.MeasureUnit, Product.ProductType != null ? Product.ProductType.Id : "");
+                return OldDetail == NewDetail;
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapPut("/api/Products", Handler).WithTags("Products");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid) {
-                return Results.BadRequest(new Response(false, "", validatedresult));
-            }
-            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
-            var product = await context.Products
-                .Include(p => p.ProductType)
-                .Where(p => p.ServiceId == serviceId)
-                .FirstOrDefaultAsync(p => p.Id == request.id);
-            if (product == null)
-                return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
-
-            if (!validator.checkSame(request, product)) {
-                product.Name = request.name;
-                product.MeasureUnit = request.measureUnit;
-                product.PricePerUnit = request.pricePerUnit;
-                product.ProductType = await context.ProductTypes.FindAsync(request.typeId);
-                if (await context.SaveChangesAsync() < 1) {
-                    return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
                 }
+
+                var ServiceId = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceId)
+                       .FirstOrDefaultAsync();
+
+                var Product = await context.Products
+                    .Include(product => product.ProductType)
+                    .Where(product => product.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(product => product.Id == request.Id);
+
+                if (Product == null)
+                    return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+
+                if (!Validator.CheckSame(request, Product)) {
+                    Product.Name = request.Name;
+                    Product.MeasureUnit = request.MeasureUnit;
+                    Product.PricePerUnit = request.PricePerUnit;
+                    Product.ProductType = await context.ProductTypes.FindAsync(request.TypeId);
+                    if (await context.SaveChangesAsync() < 1) {
+                        return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+                    }
+                }
+
+                return Results.Ok(new Response(true, "", ValidatedResult));
             }
-            return Results.Ok(new Response(true, "", validatedresult));
+            catch(Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", null));
+            }
+          
         }
     }
 }

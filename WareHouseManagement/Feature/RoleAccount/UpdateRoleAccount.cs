@@ -12,20 +12,20 @@ using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.RoleAccount {
     public class UpdateRoleAccount : IEndpoint {
-        public record Request(string id, string userName, string password, string confirmPassword, string fullName, List<string> roles);
-        public record Response(bool success, string errorMessage, ValidationResult? validateError);
+        public record Request(string Id, string UserName, string Password, string ConfirmPassword, string FullName, List<string> Roles);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? validateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.userName).NotEmpty().WithMessage("Chưa nhập tên");
-                RuleFor(r => r.password).NotEmpty().WithMessage("Chưa nhập mật khẩu");
-                RuleFor(r => r.password).MinimumLength(3).WithMessage("Phải nhập tối thiểu 3 ký tự");
-                RuleFor(r => r.confirmPassword).Equal(r => r.password).WithMessage("Xác nhận mật khẩu chưa hợp lệ");
+                RuleFor(r => r.UserName).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.Password).NotEmpty().WithMessage("Chưa nhập mật khẩu");
+                RuleFor(r => r.Password).MinimumLength(3).WithMessage("Phải nhập tối thiểu 3 ký tự");
+                RuleFor(r => r.ConfirmPassword).Equal(r => r.Password).WithMessage("Xác nhận mật khẩu chưa hợp lệ");
             }
-            private record checkmodel(string username,string fullname);
-            public bool checkSame(Request request, Account account) {
-                checkmodel newDetail = new checkmodel(request.userName, request.fullName);
-                checkmodel oldDetail = new checkmodel(account.UserName,account.FullName);
-                return oldDetail == newDetail;
+            private record Checkmodel(string username,string fullname);
+            public bool checkSame(Request request, Account Account) {
+                Checkmodel NewDetail = new (request.UserName, request.FullName);
+                Checkmodel OldDetail = new (Account.UserName,Account.FullName);
+                return OldDetail == NewDetail;
 
             }
         }
@@ -33,32 +33,42 @@ namespace WareHouseManagement.Feature.RoleAccount {
             app.MapPut("/api/Account/Role", Handler).WithTags("Account");
         }
         [Authorize(Roles = Permission.Admin)]
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, UserManager<Account> userManager, SignInManager<Account> signInManager, ClaimsPrincipal user) {
-            var validator = new Validator();
-            var validateresult = await validator.ValidateAsync(request);
-            if (!validateresult.IsValid) {
-                return Results.BadRequest(new Response(false, "Lỗi xảy ra", validateresult));
-            }
-            if (await userManager.FindByNameAsync(request.userName) != null) {
-                return Results.BadRequest(new Response(false, "Tên đăng nhập đang sử dụng!", validateresult));
-            }
-
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
-            Account account = await userManager.FindByIdAsync(request.id);
-            if (account != null) {
-                if (!validator.checkSame(request, account) && !await userManager.CheckPasswordAsync(account, request.password)) {
-                    account.UserName = $"{account.UserName.Substring(0,7)}-{request.userName}";
-                    var token = await userManager.GeneratePasswordResetTokenAsync(account);
-                    await userManager.ChangePasswordAsync(account, token, request.password);
-                    account.FullName = request.userName;
-                    if (await context.SaveChangesAsync() > 0) {
-                        return Results.Ok(new Response(true, "", validateresult));
-                    }
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, UserManager<Account> userManager, SignInManager<Account> signInManager, ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidateResult = await Validator.ValidateAsync(request);
+                if (!ValidateResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "Lỗi xảy ra", ValidateResult));
                 }
-                return Results.Ok(new Response(true, "", validateresult));
+                if (await userManager.FindByNameAsync(request.UserName) != null) {
+                    return Results.BadRequest(new Response(false, "Tên đăng nhập đang sử dụng!", ValidateResult));
+                }
+
+                var ServiceId = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceId)
+                       .FirstOrDefaultAsync();
+
+                Account Account = await userManager.FindByIdAsync(request.Id);
+                if (Account != null) {
+                    if (!Validator.checkSame(request, Account) && !await userManager.CheckPasswordAsync(Account, request.Password)) {
+                        Account.UserName = $"{Account.UserName.Substring(0, 7)}-{request.UserName}";
+                        var Token = await userManager.GeneratePasswordResetTokenAsync(Account);
+                        await userManager.ChangePasswordAsync(Account, Token, request.Password);
+                        Account.FullName = request.UserName;
+                        if (await context.SaveChangesAsync() > 0) {
+                            return Results.Ok(new Response(true, "", ValidateResult));
+                        }
+                    }
+                    return Results.Ok(new Response(true, "", ValidateResult));
+                }
+
+                return Results.BadRequest(new Response(false, "Lỗi đã xảy ra", ValidateResult));
             }
-            
-            return Results.BadRequest(new Response(false, "Lỗi đã xảy ra", validateresult));
+            catch(Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra", null));
+            }
         }
     }
 }

@@ -89,17 +89,7 @@ namespace WareHouseManagement.Data {
             });
            
 
-            builder.Entity<StockExportForm>()
-                   .HasOne(f => f.Receipt)
-                   .WithOne(r => r.StockExportReport)
-                   .HasForeignKey<StockExportForm>(f => f.ReceiptId)
-                   .OnDelete(DeleteBehavior.ClientSetNull);
-
-            builder.Entity<StockImportForm>()
-                   .HasOne(f => f.Receipt)
-                   .WithOne(r => r.StockImportReport)
-                   .HasForeignKey<StockImportForm>(f => f.ReceiptId)
-                   .OnDelete(DeleteBehavior.ClientSetNull);
+           
             builder.Entity<ImportFormDetail>(entity => {
                 entity.HasKey(e => new { e.ProductId, e.FormId,e.WarehouseId });
 
@@ -165,9 +155,9 @@ namespace WareHouseManagement.Data {
         public virtual DbSet<Warehouse> Warehouses { get; set; }
         public virtual DbSet<Stock> Stocks { get; set; }
         public virtual DbSet<ExportFormDetail> ExportDetails { get; set; }
-        public virtual DbSet<StockExportForm> StockExportForms { get; set; }
+        public virtual DbSet<ExportForm> ExportForms { get; set; }
         public virtual DbSet<ImportFormDetail> ImportDetails { get; set; }
-        public virtual DbSet<StockImportForm> StockImportForms { get; set; }
+        public virtual DbSet<ImportForm> ImportForms { get; set; }
 
 
     }

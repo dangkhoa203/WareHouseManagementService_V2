@@ -6,39 +6,43 @@ using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.ExportForms {
-    public class GetExportForms:IEndpoint {
-        public record receiptDTO(string id, string customerName, DateTime dateOfOrder);
-        public record formDTO(string id, receiptDTO receipt, DateTime dateOfExport);
-        public record Response(bool success, List<formDTO> data, string errorMessage);
+    public class GetExportForms : IEndpoint {
+        public record ReceiptDTO(string Id, string CustomerName, DateTime DateOfOrder);
+        public record FormDTO(string Id, ReceiptDTO Receipt, DateTime DateOfExport);
+        public record Response(bool Success, List<FormDTO> Data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapGet("/api/Export-Forms", Handler).WithTags("Import Forms");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
-        private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user) {
+        private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal User) {
             try {
-                var serviceId = context.Users
+                var ServiceId = await context.Users
                     .Include(u => u.ServiceRegistered)
-                    .Where(u => u.UserName == user.Identity.Name)
+                    .Where(u => u.UserName == User.Identity.Name)
                     .Select(u => u.ServiceId)
-                    .FirstOrDefault();
-                var forms = await context.StockExportForms
-                    .Include(f => f.Receipt)
-                    .ThenInclude(re => re.Customer)
-                    .Where(f => f.ServiceId == serviceId)
-                    .OrderByDescending(f => f.CreatedDate)
-                    .Select(f => new formDTO(
-                        f.Id,
-                        new receiptDTO(
-                            f.ReceiptId,
-                            f.Receipt.Customer.Name,
-                            f.Receipt.DateOrder
-                            ),
-                        f.ExportDate
+                    .FirstOrDefaultAsync();
+
+                var Forms = await context.ExportForms
+                    .Include(form => form.Receipt)
+                        .ThenInclude(receipt => receipt.Customer)
+                    .Where(form => form.ServiceId == ServiceId)
+                    .Where(form=>!form.IsDeleted)
+                    .OrderByDescending(form => form.CreatedDate)
+                    .Select(form => new FormDTO(
+                        form.Id,
+                        new ReceiptDTO(
+                            form.ReceiptId,
+                            form.Receipt.Customer.Name,
+                            form.Receipt.DateOrder
+                        ),
+                        form.ExportDate
                     ))
                     .ToListAsync();
-                return Results.Ok(new Response(true, forms, ""));
-            } catch (Exception ex) {
+
+                return Results.Ok(new Response(true, Forms, ""));
+            }
+            catch (Exception ex) {
                 return Results.BadRequest(new Response(false, [], "Lỗi đã xảy ra!"));
             }
         }

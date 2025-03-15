@@ -6,13 +6,12 @@ using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.VendorReplenishReceipts {
-    public class GetVendorReceipts : IEndpoint {
-        public record vendorDTO(string id, string name, string email, string address, string phoneNumber);
-        public record receiptDTO(string id, vendorDTO customer, DateTime dateOfOrder);
+    public class GetCustomerReceiptsForExport : IEndpoint {
+        public record receiptDTO(string id, DateTime dateOfOrder);
         public record Response(bool Success, List<receiptDTO> data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Vendor-Receipts", Handler).WithTags("Vendor Receipts");
+            app.MapGet("/api/Vendor-Receipts/form", Handler).WithTags("Vendor Receipts");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.VendorReceipt)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal User) {
@@ -24,23 +23,15 @@ namespace WareHouseManagement.Feature.VendorReplenishReceipts {
                     .FirstOrDefaultAsync();
 
                 var Receipts = await context.VendorReplenishReceipts
-                    .Include(receipt => receipt.Vendor)
+                    .Include(receipt => receipt.StockImportReports)
                     .Where(receipt => receipt.ServiceId == ServiceId)
-                    .Where(receipt=>!receipt.IsDeleted)
+                    .Where(receipt=>receipt.StockImportReports.Where(form=>!form.IsDeleted).Count()==0)
                     .OrderByDescending(receipt => receipt.CreatedDate)
                     .Select(receipt => new receiptDTO(
                         receipt.Id,
-                        new vendorDTO(
-                            receipt.Vendor.Id,
-                            receipt.Vendor.Name,
-                            receipt.Vendor.Email,
-                            receipt.Vendor.Address,
-                            receipt.Vendor.PhoneNumber
-                            ),
                         receipt.DateOrder
                     ))
                     .ToListAsync();
-
                 return Results.Ok(new Response(true, Receipts, ""));
             }
             catch (Exception ex) {

@@ -11,17 +11,17 @@ using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Warehouses {
     public class UpdateWarehouse:IEndpoint {
-        public record Request(string id, string name, string address, string city);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
+        public record Request(string Id, string Name, string Address, string City);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
             }
-            private record checkmodel(string name, string address, string city);
-            public bool checkSame(Request request, Warehouse warehouse) {
-                checkmodel newDetail = new checkmodel(request.name, request.address, request.city);
-                checkmodel oldDetail = new checkmodel(warehouse.Name, warehouse.Address, warehouse.City);
-                return oldDetail == newDetail;
+            private record Checkmodel(string name, string address, string city);
+            public bool checkSame(Request request, Warehouse Warehouse) {
+                Checkmodel NewDetail = new (request.Name, request.Address, request.City);
+                Checkmodel OldDetail = new (Warehouse.Name, Warehouse.Address, Warehouse.City);
+                return OldDetail == NewDetail;
 
             }
         }
@@ -29,29 +29,41 @@ namespace WareHouseManagement.Feature.Warehouses {
             app.MapPut("/api/Warehouses", Handler).WithTags("Warehouses");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Warehouse)]
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid) {
-                return Results.BadRequest(new Response(false, "", validatedresult));
-            }
-            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
-            var warehouse = await context.Warehouses
-                .Where(c => c.ServiceId == serviceId)
-                .FirstOrDefaultAsync(c => c.Id == request.id);
-            if (warehouse == null)
-                return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
-
-            if (!validator.checkSame(request, warehouse)) {
-                warehouse.Name = request.name;
-                warehouse.City = request.city;
-                warehouse.Address = request.address;
-                if (await context.SaveChangesAsync() < 1) {
-                    return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
                 }
+
+                var ServiceId = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceId)
+                       .FirstOrDefaultAsync();
+
+                var Warehouse = await context.Warehouses
+                    .Where(warehouse => warehouse.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(warehouse => warehouse.Id == request.Id);
+
+                if (Warehouse == null)
+                    return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+
+                if (!Validator.checkSame(request, Warehouse)) {
+                    Warehouse.Name = request.Name;
+                    Warehouse.City = request.City;
+                    Warehouse.Address = request.Address;
+                    if (await context.SaveChangesAsync() < 1) {
+                        return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+                    }
+                }
+
+                return Results.Ok(new Response(true, "", ValidatedResult));
             }
-            return Results.Ok(new Response(true, "", validatedresult));
+            catch (Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi sever đã xảy ra!", null));
+            }
         }
     }
 }

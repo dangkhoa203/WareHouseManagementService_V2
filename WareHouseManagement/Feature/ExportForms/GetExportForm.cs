@@ -6,57 +6,63 @@ using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.ExportForms {
-    public class GetExportForm:IEndpoint {
-        public record receiptDTO(string id, string customerName, DateTime dateOfOrder);
-        public record detailDTO(string productID, string productName, string warehouseId, string warehouseName, string address, string city, int quantity);
-        public record formDTO(string id, receiptDTO receipt, ICollection<detailDTO> details, DateTime dateOfExport, DateTime createDate);
-        public record Response(bool success, formDTO data, string errorMessage);
+    public class GetExportForm : IEndpoint {
+        public record ReceiptDTO(string Id, string CustomerName, DateTime DateOfOrder);
+        public record DetailDTO(string ProductID, string ProductName, string WarehouseId, string WarehouseName, string Address, string City, int Quantity);
+        public record FormDTO(string Id, ReceiptDTO Receipt, ICollection<DetailDTO> Details, DateTime DateOfExport, DateTime DateCreated);
+        public record Response(bool Success, FormDTO Data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapGet("/api/Export-Forms/{id}", Handler).WithTags("Export Forms");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
-        private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal user) {
+        private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal User) {
             try {
-                var serviceId = context.Users
-                    .Include(u => u.ServiceRegistered)
-                    .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceId)
-                    .FirstOrDefault();
-                var form = await context.StockExportForms
-                    .Include(f => f.Details)
-                       .ThenInclude(d => d.ProductNav)
-                    .Include(f => f.Details)
-                       .ThenInclude(d => d.WarehouseNav)
-                    .Include(f => f.Receipt)
-                       .ThenInclude(re => re.Customer)
-                    .Where(u => u.ServiceId == serviceId)
-                    .Where(r => !r.IsDeleted)
-                    .FirstOrDefaultAsync(r => r.Id == id);
-                if (form != null) {
-                    var receipt = new receiptDTO(
-                        form.Receipt.Id,
-                        form.Receipt.Customer.Name,
-                        form.Receipt.DateOrder
-                    );
-                    var details = form.Details
-                    .Select(
-                        d => new detailDTO(
-                        d.ProductId,
-                        d.ProductNav.Name,
-                        d.WarehouseId,
-                        d.WarehouseNav.Name,
-                        d.WarehouseNav.Address,
-                        d.WarehouseNav.City,
-                        d.Quantity
-                        )
+                var ServiceId = await context.Users
+                   .Include(u => u.ServiceRegistered)
+                   .Where(u => u.UserName == User.Identity.Name)
+                   .Select(u => u.ServiceId)
+                   .FirstOrDefaultAsync();
+
+                var Form = await context.ExportForms
+                    .Include(form => form.Details)
+                       .ThenInclude(detail => detail.ProductNav)
+                    .Include(form => form.Details)
+                       .ThenInclude(detail => detail.WarehouseNav)
+                    .Include(form => form.Receipt)
+                       .ThenInclude(receipt => receipt.Customer)
+                    .Where(u => u.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(form => form.Id == id);
+
+                if (Form == null) 
+                    return Results.NotFound(new Response(false, null, "Không tìm thấy dữ liệu!"));
+                if (Form.IsDeleted)
+                    return Results.NotFound(new Response(false, null, "Dữ liệu đã xóa!"));
+
+                var Receipt = new ReceiptDTO(
+                     Form.Receipt.Id,
+                     Form.Receipt.Customer.Name,
+                     Form.Receipt.DateOrder
+                );
+
+                var Details = Form.Details
+                .Select(
+                    detail => new DetailDTO(
+                    detail.ProductId,
+                    detail.ProductNav.Name,
+                    detail.WarehouseId,
+                    detail.WarehouseNav.Name,
+                    detail.WarehouseNav.Address,
+                    detail.WarehouseNav.City,
+                    detail.Quantity
                     )
-                    .ToList();
-                    var data = new formDTO(form.Id, receipt, details, form.ExportDate, form.CreatedDate);
-                    return Results.Ok(new Response(true, data, ""));
-                }
-                return Results.NotFound(new Response(false, null, "Không tìm thấy dữ liệu!"));
-            } catch (Exception ex) {
+                )
+                .ToList();
+
+                var Data = new FormDTO(Form.Id, Receipt, Details, Form.ExportDate, Form.CreatedDate);
+                return Results.Ok(new Response(true, Data, ""));
+            }
+            catch (Exception ex) {
                 return Results.BadRequest(new Response(false, null, "Lỗi đã xảy ra!"));
             }
         }

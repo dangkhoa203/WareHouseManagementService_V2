@@ -11,34 +11,47 @@ using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.CustomerGroups {
     public class AddCustomerGroup : IEndpoint {
-        public record Request(string name, string description);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
+        public record Request(string Name, string Description);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapPost("/api/Customer-Groups", Handler).WithTags("Customer Groups");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-            var serviceId = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceId).FirstOrDefault();
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid) {
-                return Results.BadRequest(new Response(false, "", validatedresult));
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var ServiceId = await context.Users
+                              .Include(u => u.ServiceRegistered)
+                              .Where(u => u.UserName == User.Identity.Name)
+                              .Select(u => u.ServiceId)
+                              .FirstOrDefaultAsync();
+
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
+                }
+
+                CustomerGroup Group = new() {
+                    Name = request.Name,
+                    Description = request.Description,
+                    ServiceId = ServiceId,
+                };
+
+                await context.CustomerGroups.AddAsync(Group);
+                if (await context.SaveChangesAsync() > 0) {
+                    return Results.Ok(new Response(true, "", ValidatedResult));
+                }
+                return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
             }
-            CustomerGroup customerGroup = new() {
-                Name = request.name,
-                Description = request.description,
-                ServiceId = serviceId,
-            };
-            await context.CustomerGroups.AddAsync(customerGroup);
-            if (await context.SaveChangesAsync() > 0) {
-                return Results.Ok(new Response(true, "", validatedresult));
+            catch (Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra!", null));
             }
-            return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+
         }
     }
 }

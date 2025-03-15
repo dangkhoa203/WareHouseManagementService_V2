@@ -6,38 +6,42 @@ using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.RoleAccount {
-    public class GetRoleAccount:IEndpoint {
-        public record accountDTO(string id, string userName, string fullName, DateTime createDate);
-        public record Response(bool success, accountDTO data, string errorMessage);
+    public class GetRoleAccount : IEndpoint {
+        public record AccountDTO(string Id, string UserName, string FullName, DateTime DateCreated);
+        public record Response(bool Success, AccountDTO Data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapGet("/api/Account/Role/{id}", Handler).WithTags("Account");
         }
         [Authorize(Roles = Permission.Admin)]
-        private static async Task<IResult> Handler(string id,ApplicationDbContext context, ClaimsPrincipal user) {
+        private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal User) {
             try {
-                var serviceId = context.Users
+                var ServiceId = await context.Users
                     .Include(u => u.ServiceRegistered)
-                    .Where(u => u.UserName == user.Identity.Name)
+                    .Where(u => u.UserName == User.Identity.Name)
                     .Select(u => u.ServiceId)
-                    .FirstOrDefault();
-                var account = await context.Users
-                    .Where(u => u.ServiceId == serviceId)
-                    .Where(u=>u.Id==id)
-                    .OrderByDescending(u => u.CreateDate)
-                    .Select(u => new accountDTO(
-                        u.Id,
-                        u.UserName,
-                        u.FullName,
-                        u.CreateDate
+                    .FirstOrDefaultAsync();
+
+                var Account = await context.Users
+                    .Where(account => account.ServiceId == ServiceId)
+                    .Where(account => account.Id == id)
+                    .OrderByDescending(account => account.DateCreated)
+                    .Select(account => new AccountDTO(
+                        account.Id,
+                        account.UserName,
+                        account.FullName,
+                        account.DateCreated
                         )
                     )
                     .FirstOrDefaultAsync();
-                if (account != null) {
-                    return Results.Ok(new Response(true, account, ""));
+
+                if (Account != null) {
+                    return Results.Ok(new Response(true, Account, ""));
                 }
+
                 return Results.NotFound(new Response(true, null, "Không tìm thấy!"));
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 return Results.BadRequest(new Response(false, null, "Lỗi đã xảy ra!"));
             }
         }

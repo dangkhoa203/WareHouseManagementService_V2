@@ -19,7 +19,7 @@ namespace WareHouseManagement.Model.Receipt
         }
 
         public virtual Tax? Tax { get; set; }
-        public virtual StockExportForm? StockExportReport { get; set; }
+        public virtual ICollection<ExportForm> StockExportReports { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual ICollection<CustomerBuyReceiptDetail> Details { get; set; }
     }

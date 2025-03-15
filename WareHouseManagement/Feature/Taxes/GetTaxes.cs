@@ -5,15 +5,15 @@ using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.ProductTypes {
-    public class GetProductTypes : IEndpoint {
-        public record TypeDTO(string Id, string Name, DateTime DateCreated);
-        public record Response(bool Success, List<TypeDTO> Data, string ErrorMessage);
+namespace WareHouseManagement.Feature.Taxes {
+    public class GetTaxes : IEndpoint {
+        public record TaxDTO(string Id, string Name, float Percent, DateTime DateCreated);
+        public record Response(bool Success, List<TaxDTO> Data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Product-Types", Handler).WithTags("Product Types");
+            app.MapGet("/api/Taxes", Handler).WithTags("Taxes");
         }
-        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
+        [Authorize(Roles = Permission.Admin + "," + Permission.Tax)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal User) {
             try {
                 var ServiceId = await context.Users
@@ -22,14 +22,14 @@ namespace WareHouseManagement.Feature.ProductTypes {
                    .Select(u => u.ServiceId)
                    .FirstOrDefaultAsync();
 
-                var Types = await context.ProductTypes
-                    .Where(type => type.ServiceId == ServiceId)
-                    .Where(type=>!type.IsDeleted)
-                    .OrderByDescending(type => type.CreatedDate)
-                    .Select(type => new TypeDTO(type.Id, type.Name, type.CreatedDate))
+                var Taxes = await context.Taxes
+                    .Where(tax => tax.ServiceId == ServiceId)
+                    .Where(tax=>!tax.IsDeleted)
+                    .OrderByDescending(tax => tax.CreatedDate)
+                    .Select(tax => new TaxDTO(tax.Id, tax.Name, tax.Percent, tax.CreatedDate))
                     .ToListAsync();
 
-                return Results.Ok(new Response(true, Types, ""));
+                return Results.Ok(new Response(true, Taxes, ""));
             }
             catch (Exception ex) {
                 return Results.BadRequest(new Response(false, [], "Lỗi đã xảy ra!"));
