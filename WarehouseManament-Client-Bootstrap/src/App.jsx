@@ -65,7 +65,7 @@ function App() {
             {loadingScreen ?
                 <div className="loadingscreen">
                     <div className="dot"></div>
-                    <span className="text">Loading</span>
+                    <span className="loading text">Loading</span>
                 </div> :
                 <div>
                     {user.isLogged ?

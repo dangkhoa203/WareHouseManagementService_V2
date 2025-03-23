@@ -22,12 +22,14 @@
 .text {
     color: black;
     font-weight: 800;
+    font-size: 3em;
 }
 .dot {
     background: black;
     height: 0.65em;
     width: 0.65em;
     border-radius: 50%;
+    font-size: 3em;
     animation: move 0.6s ease infinite;
 }
 @keyframes move {
