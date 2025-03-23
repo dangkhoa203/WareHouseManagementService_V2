@@ -1,0 +1,56 @@
+#root{
+    height: 100vh;
+    background: linear-gradient(105deg, rgba(218,218,230,1) 0%, rgba(255,254,254,1) 99%);
+}
+
+.modalpanel {
+    opacity: 0;
+    visibility: hidden;
+    position: fixed;
+    /* Stay in place */
+    z-index: 99;
+    /* Sit on top */
+    padding-top: 100px;
+    /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+    transition: all 0.3s;
+
+}
+
+/* Modal Content */
+.modalpanel-content {
+    padding: 50px;
+    border-radius: 10px;
+    width: 80%;
+    min-height: 40%;
+    background-color: white;
+    i {
+        font-size: 2em;
+        font-weight: bolder;
+    }
+
+    a {
+        cursor: pointer;
+    }
+}
+.modalpanel-content-text {
+    font-size: 1.5em;
+}
+
+.modal-active {
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.3s;
+}
+

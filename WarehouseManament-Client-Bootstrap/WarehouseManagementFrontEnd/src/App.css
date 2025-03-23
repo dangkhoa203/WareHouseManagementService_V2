@@ -1,0 +1,43 @@
+﻿.App{
+    height: 100%;
+    padding-top: 60px;
+    background: linear-gradient(105deg, rgba(218,218,230,1) 0%, rgba(255,254,254,1) 99%);
+}
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@100..900&display=swap');
+* {
+    font-family: 'Urbanist', sans-serif;
+}
+
+.loadingscreen {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+    transition: 2s ease;
+    cursor: progress;
+}
+
+.text {
+    color: black;
+    font-weight: 800;
+}
+.dot {
+    background: black;
+    height: 0.65em;
+    width: 0.65em;
+    border-radius: 50%;
+    animation: move 0.6s ease infinite;
+}
+@keyframes move {
+    0% {
+        transform: translateX(50%);
+    }
+    50% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(50%);
+    }
+}
