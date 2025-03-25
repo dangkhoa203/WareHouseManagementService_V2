@@ -1,56 +1,70 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Customer_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Customers {
     public class UpdateCustomer : IEndpoint {
-        public record Request(string id, string name, string address, string email, string phone, string? groupId);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
+        public record Request(string Id, string Name, string Address, string Email, string Phone, string? GroupId);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
             }
-            private record checkmodel(string name, string address, string email, string phone, string? groupId);
+            private record Checkmodel(string Name, string Address, string Email, string Phone, string? GroupId);
             public bool checkSame(Request request, Customer customer) {
-                checkmodel newDetail = new checkmodel(request.name, request.address, request.email, request.phone, request.groupId);
-                checkmodel oldDetail = new checkmodel(customer.Name, customer.Address, customer.Email, customer.PhoneNumber, customer.CustomerGroup != null ? customer.CustomerGroup.Id : "");
+                Checkmodel newDetail = new (request.Name, request.Address, request.Email, request.Phone, request.GroupId);
+                Checkmodel oldDetail = new (customer.Name, customer.Address, customer.Email, customer.PhoneNumber, customer.CustomerGroup != null ? customer.CustomerGroup.Id : "");
                 return oldDetail == newDetail;
 
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPut("/api/Customers", Handler).RequireAuthorization().WithTags("Customers");
+            app.MapPut("/api/Customers", Handler).WithTags("Customers");
         }
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid) {
-                return Results.BadRequest(new Response(false, "", validatedresult));
-            }
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
-            var customer = await context.Customers
-                .Include(c => c.CustomerGroup)
-                .Where(c => c.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(c => c.Id == request.id);
-            if (customer == null)
-                return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
-
-            if (!validator.checkSame(request, customer)) {
-                customer.Name = request.name;
-                customer.Email = request.email;
-                customer.PhoneNumber = request.phone;
-                customer.Address = request.address;
-                customer.CustomerGroup = await context.CustomerGroups.FindAsync(request.groupId);
-                if (await context.SaveChangesAsync() < 1) {
-                    return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
                 }
+
+                var ServiceId = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceId)
+                       .FirstOrDefaultAsync();
+
+                var Customer = await context.Customers
+                    .Include(customer => customer.CustomerGroup)
+                    .Where(customer => customer.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(customer => customer.Id == request.Id);
+                if (Customer == null)
+                    return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+
+                if (!Validator.checkSame(request, Customer)) {
+                    Customer.Name = request.Name;
+                    Customer.Email = request.Email;
+                    Customer.PhoneNumber = request.Phone;
+                    Customer.Address = request.Address;
+                    Customer.CustomerGroup = await context.CustomerGroups.FindAsync(request.GroupId);
+                    if (await context.SaveChangesAsync() < 1) {
+                        return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+                    }
+                }
+                return Results.Ok(new Response(true, "", ValidatedResult));
             }
-            return Results.Ok(new Response(true, "", validatedresult));
+            catch (Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra!", null));
+            }
+           
         }
     }
 }

@@ -1,44 +1,60 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Product_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Products {
     public class AddProduct {
-        public record Request(string name, int pricePerUnit, string measureUnit, string? typeId);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
+        public record Request(string Name, int PricePerUnit, string MeasureUnit, string? TypeId);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
         public sealed class Validator : AbstractValidator<Request> {
             public Validator() {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
-                RuleFor(r => r.pricePerUnit).GreaterThan(-1).WithMessage("Giá chưa phù hợp");
-                RuleFor(r => r.measureUnit).NotEmpty().WithMessage("Chưa nhập đơn vị tính");
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.PricePerUnit).GreaterThan(-1).WithMessage("Giá chưa phù hợp");
+                RuleFor(r => r.MeasureUnit).NotEmpty().WithMessage("Chưa nhập đơn vị tính");
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapPost("/api/Products", Handler).RequireAuthorization().WithTags("Products");
+            app.MapPost("/api/Products", Handler).WithTags("Products");
         }
-        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal user) {
-            var service = context.Users.Include(u => u.ServiceRegistered).Where(u => u.UserName == user.Identity.Name).Select(u => u.ServiceRegistered).FirstOrDefault();
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid) {
-                return Results.BadRequest(new Response(false, "", validatedresult));
+        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
+        private static async Task<IResult> Handler(Request request, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid) {
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
+                }
+
+                var ServiceId = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceId)
+                       .FirstOrDefaultAsync();
+
+                Product Product = new() {
+                    Name = request.Name,
+                    MeasureUnit = request.MeasureUnit,
+                    PricePerUnit = request.PricePerUnit,
+                    ProductType = await context.ProductTypes.FindAsync(request.TypeId),
+                    ServiceId = ServiceId,
+                };
+                await context.Products.AddAsync(Product);
+
+                if (await context.SaveChangesAsync() > 0) {
+                    return Results.Ok(new Response(true, "", ValidatedResult));
+                }
+
+                return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
             }
-            Product product = new() {
-                Name = request.name,
-                MeasureUnit = request.measureUnit,
-                PricePerUnit = request.pricePerUnit,
-                ProductType = await context.ProductTypes.FindAsync(request.typeId),
-                ServiceRegisteredFrom = service,
-            };
-            await context.Products.AddAsync(product);
-            if (await context.SaveChangesAsync() > 0) {
-                return Results.Ok(new Response(true, "", validatedresult));
-            }
-            return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+            catch {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra!", null));
+            } 
         }
 
     }

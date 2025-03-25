@@ -1,40 +1,40 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.VendorGroups
-{
-    public class GetVendorGroup:IEndpoint
-    {
-        public record groupDTO(string id, string name, string description, DateTime createDate);
-        public record Response(bool success, groupDTO data, string errorMessage);
+namespace WareHouseManagement.Feature.VendorGroups {
+    public class GetVendorGroup : IEndpoint {
+        public record GroupDTO(string Id, string Name, string Description, DateTime DateCreated);
+        public record Response(bool Success, GroupDTO data, string ErrorMessage);
 
-        public static void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapGet("/api/Vendor-Groups/{id}", Handler).WithTags("VendorGroups");
+        public static void MapEndpoint(IEndpointRouteBuilder app) {
+            app.MapGet("/api/Vendor-Groups/{id}", Handler).WithTags("Vendor Groups");
         }
-        private static async Task<IResult> Handler(string id,ApplicationDbContext context, ClaimsPrincipal user)
-        {
-            try
-            {
-                var service = context.Users
-                    .Include(u => u.ServiceRegistered)
-                    .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
-                    .FirstOrDefault();
-                var group = await context.VendorGroups
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                    .OrderByDescending(g => g.CreatedDate)
-                    .Where(g => g.Id == id)
-                    .Select(g => new groupDTO(g.Id, g.Name, g.Description, g.CreatedDate))
-                    .FirstOrDefaultAsync();
-                if (group != null)
-                    return Results.Ok(new Response(true, group, ""));
-                return Results.NotFound(new Response(false, null, "Không tìm thấy dữ liệu!"));
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
+        private static async Task<IResult> Handler(string id, ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var ServiceId = await context.Users
+                   .Include(u => u.ServiceRegistered)
+                   .Where(u => u.UserName == User.Identity.Name)
+                   .Select(u => u.ServiceId)
+                   .FirstOrDefaultAsync();
+
+                var Group = await context.VendorGroups
+                    .Where(group => group.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(group => group.Id == id);
+
+                if (Group == null)
+                    return Results.NotFound(new Response(false, null, "Không tìm thấy dữ liệu!"));
+                if(Group.IsDeleted)
+                    return Results.NotFound(new Response(false, null, "Dữ liệu đã xóa!"));
+
+                var Data = new GroupDTO(Group.Id, Group.Name, Group.Description, Group.CreatedDate);
+                return Results.Ok(new Response(true, Data, ""));
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 return Results.BadRequest(new Response(false, null, "Lỗi đã xảy ra!"));
             }
         }

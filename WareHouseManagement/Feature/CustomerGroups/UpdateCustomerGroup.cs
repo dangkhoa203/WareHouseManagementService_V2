@@ -1,64 +1,61 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Model.Entity.Customer_Entity;
+using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.CustomerGroups
-{
-    public class UpdateCustomerGroup : IEndpoint
-    {
-        public record Request(string id, string name, string description);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
-        public sealed class Validator : AbstractValidator<Request>
-        {
-            public Validator()
-            {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
+namespace WareHouseManagement.Feature.CustomerGroups {
+    public class UpdateCustomerGroup : IEndpoint {
+        public record Request(string Id, string Name, string Description);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
+        public sealed class Validator : AbstractValidator<Request> {
+            public Validator() {
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
             }
             public bool checkSame(Request request, CustomerGroup group) {
-               return (request.name==group.Name && request.description==group.Description);
+                return (request.Name == group.Name && request.Description == group.Description);
             }
         }
-        public static void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPut("/api/Customer-Groups", Handler).WithTags("CustomerGroups");
+        public static void MapEndpoint(IEndpointRouteBuilder app) {
+            app.MapPut("/api/Customer-Groups", Handler).WithTags("Customer Groups");
         }
-        private static async Task<IResult> Handler(
-            Request request,
-            ApplicationDbContext context,
-            ClaimsPrincipal user)
-        {
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid)
-                return Results.BadRequest(new Response(false, "", validatedresult));
-            
-            var service = context.Users
-                .Include(u => u.ServiceRegistered)
-                .Where(u => u.UserName == user.Identity.Name)
-                .Select(u => u.ServiceRegistered)
-                .FirstOrDefault();
+        [Authorize(Roles = Permission.Admin + "," + Permission.Customer)]
+        private static async Task<IResult> Handler(Request request,ApplicationDbContext context,ClaimsPrincipal User) {
+            try {
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid)
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
 
-            var group = await context.CustomerGroups
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .Include(g=>g.Customers)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
-            if (group == null)
-                return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
-            
-            if(!validator.checkSame(request, group))
-            {
-                group.Name = request.name;
-                group.Description = request.description;
-                if (await context.SaveChangesAsync() < 1)
-                {
-                    return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+                var ServiceId = await context.Users
+                                     .Include(u => u.ServiceRegistered)
+                                     .Where(u => u.UserName == User.Identity.Name)
+                                     .Select(u => u.ServiceId)
+                                     .FirstOrDefaultAsync();
+
+                var Group = await context.CustomerGroups
+                    .Where(group => group.ServiceId == ServiceId)
+                    .Include(group => group.Customers)
+                    .FirstOrDefaultAsync(group => group.Id == request.Id);
+                if (Group == null)
+                    return Results.NotFound(new Response(false, "Không tìm thấy nhóm!", ValidatedResult));
+
+                if (!Validator.checkSame(request, Group)) {
+                    Group.Name = request.Name;
+                    Group.Description = request.Description;
+                    if (await context.SaveChangesAsync() < 1) {
+                        return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+                    }
                 }
+                return Results.Ok(new Response(true, "", ValidatedResult));
             }
-            return Results.Ok(new Response(true, "", validatedresult));
+            catch (Exception) {
+                return Results.NotFound(new Response(false, "Lỗi server đã xảy ra!", null));
+            }
         }
     }
 }

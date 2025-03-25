@@ -1,65 +1,68 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
-using WareHouseManagement.Model.Entity.Customer_Entity;
 using WareHouseManagement.Model.Entity.Vendor_Entity;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.VendorGroups
 {
     public class UpdateVendorGroup:IEndpoint
     {
-        public record Request(string id, string name, string description);
-        public record Response(bool success, string errorMessage, ValidationResult? error);
+        public record Request(string Id, string Name, string Description);
+        public record Response(bool Success, string ErrorMessage, ValidationResult? ValidateError);
         public sealed class Validator : AbstractValidator<Request>
         {
             public Validator()
             {
-                RuleFor(r => r.name).NotEmpty().WithMessage("Chưa nhập tên");
+                RuleFor(r => r.Name).NotEmpty().WithMessage("Chưa nhập tên");
             }
-            public bool checkSame(Request request, VendorGroup group)
+            public bool CheckSame(Request request, VendorGroup group)
             {
-                return (request.name == group.Name && request.description == group.Description);
+                return (request.Name == group.Name && request.Description == group.Description);
             }
         }
         public static void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPut("/api/Vendor-Groups", Handler).WithTags("VendorGroups");
+            app.MapPut("/api/Vendor-Groups", Handler).WithTags("Vendor Groups");
         }
-        private static async Task<IResult> Handler(
-            Request request,
-            ApplicationDbContext context,
-            ClaimsPrincipal user)
+        [Authorize(Roles = Permission.Admin + "," + Permission.Vendor)]
+        private static async Task<IResult> Handler(Request request,ApplicationDbContext context,ClaimsPrincipal User)
         {
-            var validator = new Validator();
-            var validatedresult = validator.Validate(request);
-            if (!validatedresult.IsValid)
-                return Results.BadRequest(new Response(false, "", validatedresult));
+            try {
+                var Validator = new Validator();
+                var ValidatedResult = Validator.Validate(request);
+                if (!ValidatedResult.IsValid)
+                    return Results.BadRequest(new Response(false, "", ValidatedResult));
 
-            var service = context.Users
-                .Include(u => u.ServiceRegistered)
-                .Where(u => u.UserName == user.Identity.Name)
-                .Select(u => u.ServiceRegistered)
-                .FirstOrDefault();
+                var ServiceId = await context.Users
+                       .Include(u => u.ServiceRegistered)
+                       .Where(u => u.UserName == User.Identity.Name)
+                       .Select(u => u.ServiceId)
+                       .FirstOrDefaultAsync();
 
-            var group = await context.VendorGroups
-                .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                .FirstOrDefaultAsync(g => g.Id == request.id);
-            if (group == null)
-                return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+                var Group = await context.VendorGroups
+                    .Where(group => group.ServiceId == ServiceId)
+                    .FirstOrDefaultAsync(group => group.Id == request.Id);
+                if (Group == null)
+                    return Results.NotFound(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
 
-            if (!validator.checkSame(request, group))
-            {
-                group.Name = request.name;
-                group.Description = request.description;
-                if (await context.SaveChangesAsync() < 1)
-                {
-                    return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", validatedresult));
+                if (!Validator.CheckSame(request, Group)) {
+                    Group.Name = request.Name;
+                    Group.Description = request.Description;
+                    if (await context.SaveChangesAsync() < 1) {
+                        return Results.BadRequest(new Response(false, "Lỗi xảy ra khi đang thực hiện!", ValidatedResult));
+                    }
                 }
+
+                return Results.Ok(new Response(true, "", ValidatedResult));
             }
-            return Results.Ok(new Response(true, "", validatedresult));
+            catch (Exception) {
+                return Results.BadRequest(new Response(false, "Lỗi server đã xảy ra!", null));
+            }
         }
     }
 }

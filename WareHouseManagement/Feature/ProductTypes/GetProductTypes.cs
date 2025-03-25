@@ -1,37 +1,37 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
+using WareHouseManagement.Model.Enum;
 
-namespace WareHouseManagement.Feature.ProductTypes
-{
-    public class GetProductTypes:IEndpoint
-    {
-        public record typeDTO(string id, string name, string description, DateTime createDate);
-        public record Response(bool success, List<typeDTO> data, string errorMessage);
+namespace WareHouseManagement.Feature.ProductTypes {
+    public class GetProductTypes : IEndpoint {
+        public record TypeDTO(string Id, string Name, DateTime DateCreated);
+        public record Response(bool Success, List<TypeDTO> Data, string ErrorMessage);
 
-        public static void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapGet("/api/Product-Types", Handler).WithTags("ProductTypes");
+        public static void MapEndpoint(IEndpointRouteBuilder app) {
+            app.MapGet("/api/Product-Types", Handler).WithTags("Product Types");
         }
-        private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal user)
-        {
-            try
-            {
-                var service = context.Users
-                    .Include(u => u.ServiceRegistered)
-                    .Where(u => u.UserName == user.Identity.Name)
-                    .Select(u => u.ServiceRegistered)
-                    .FirstOrDefault();
-                var types = await context.ProductTypes
-                    .Where(g => g.ServiceRegisteredFrom.Id == service.Id)
-                    .OrderByDescending(g => g.CreatedDate)
-                    .Select(g => new typeDTO(g.Id, g.Name, g.Description, g.CreatedDate))
+        [Authorize(Roles = Permission.Admin + "," + Permission.Product)]
+        private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal User) {
+            try {
+                var ServiceId = await context.Users
+                   .Include(u => u.ServiceRegistered)
+                   .Where(u => u.UserName == User.Identity.Name)
+                   .Select(u => u.ServiceId)
+                   .FirstOrDefaultAsync();
+
+                var Types = await context.ProductTypes
+                    .Where(type => type.ServiceId == ServiceId)
+                    .Where(type=>!type.IsDeleted)
+                    .OrderByDescending(type => type.CreatedDate)
+                    .Select(type => new TypeDTO(type.Id, type.Name, type.CreatedDate))
                     .ToListAsync();
-                return Results.Ok(new Response(true, types, ""));
+
+                return Results.Ok(new Response(true, Types, ""));
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 return Results.BadRequest(new Response(false, [], "Lỗi đã xảy ra!"));
             }
         }

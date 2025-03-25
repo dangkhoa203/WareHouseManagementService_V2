@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using WareHouseManagement.Data;
 using WareHouseManagement.Extensions;
-using WareHouseManagement.Model.Entity;
+using WareHouseManagement.Model.Entity.Account;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +31,7 @@ builder.Services.AddSwaggerGen(
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddIdentityApiEndpoints<Account>().AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddIdentityCore<Account>(option => {
+    
     option.SignIn.RequireConfirmedAccount = true;
     option.Password.RequireUppercase = false;
     option.Password.RequireLowercase = false;
@@ -41,13 +42,13 @@ builder.Services.AddIdentityCore<Account>(option => {
     option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     option.Lockout.MaxFailedAccessAttempts = 5;
     option.Lockout.AllowedForNewUsers = true;
-    option.User.RequireUniqueEmail = true;
+    option.User.RequireUniqueEmail = false;
 }).AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.ConfigureApplicationCookie(options => {
     options.Cookie.SameSite = SameSiteMode.None;
 });
-
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,5 +63,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapIdentityApi<Account>();
 app.UseCors("Dev");
+var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+dbInitializer.Initialize();
 app.MapControllers();
 app.Run();
