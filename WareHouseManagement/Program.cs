@@ -1,37 +1,39 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WarehouseManagement.Middleware.Config;
 using WareHouseManagement.Data;
 using WareHouseManagement.Extensions;
+using WareHouseManagement.Middleware;
 using WareHouseManagement.Model.Entity.Account;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
 builder.Services.AddCors(options => {
-    options.AddPolicy(name: "Dev", policy => {
+    options.AddDefaultPolicy(policy => {
         policy.WithOrigins("http://localhost:7088")
-        .WithOrigins("http://localhost:7089")
-        .WithOrigins("http://localhost:7090")
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials()
-        ;
-    });
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials()
+         ;
+    }); ;
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthorization();
 builder.Services.AddSwaggerGen(
-    options =>
-    {
+    options => {
         options.CustomSchemaIds(s => s.FullName?.Replace("+", "."));
     }
-    );
-builder.Services.AddDbContext<ApplicationDbContext>();
+);
+builder.Services.Configure<EmailSenderConfig>(builder.Configuration.GetSection("EmailSenderConfig"));
+builder.Services.AddOptions();
+builder.Services.AddScoped<EmailSender>();
+builder.Services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 builder.Services.AddIdentityApiEndpoints<Account>().AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddIdentityCore<Account>(option => {
-    
+
     option.SignIn.RequireConfirmedAccount = true;
     option.Password.RequireUppercase = false;
     option.Password.RequireLowercase = false;
@@ -48,12 +50,10 @@ builder.Services.AddIdentityCore<Account>(option => {
 builder.Services.ConfigureApplicationCookie(options => {
     options.Cookie.SameSite = SameSiteMode.None;
 });
-builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 var app = builder.Build();
-
+app.UseCors();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -62,9 +62,5 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.MapIdentityApi<Account>();
-app.UseCors("Dev");
-var scope = app.Services.CreateScope();
-var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-dbInitializer.Initialize();
-app.MapControllers();
+
 app.Run();
