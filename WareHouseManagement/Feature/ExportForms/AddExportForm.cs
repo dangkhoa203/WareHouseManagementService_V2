@@ -40,6 +40,8 @@ namespace WareHouseManagement.Feature.ExportForms {
                 var Receipt = await context.CustomerBuyReceipts.Include(receipt => receipt.Details).FirstOrDefaultAsync(receipt => receipt.Id == request.ReceiptId);
                 if (Receipt == null)
                     return Results.BadRequest(new Response(false, "không tìm thấy hóa đơn!", ValidatedResult));
+                if (DateTime.Compare(Receipt.DateOrder, request.DateOfExport) > 0)
+                    return Results.BadRequest(new Response(false, "Ngày chưa hợp lệ!", ValidatedResult));
 
                 var Details = new List<ExportFormDetail>();
                 foreach (var FormDetail in request.Details) {

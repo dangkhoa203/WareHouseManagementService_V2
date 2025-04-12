@@ -12,7 +12,7 @@ namespace WareHouseManagement.Feature.ExportForms {
         public record Response(bool Success, List<FormDTO> Data, string ErrorMessage);
 
         public static void MapEndpoint(IEndpointRouteBuilder app) {
-            app.MapGet("/api/Export-Forms", Handler).WithTags("Import Forms");
+            app.MapGet("/api/Export-Forms", Handler).WithTags("Export Forms");
         }
         [Authorize(Roles = Permission.Admin + "," + Permission.Stock)]
         private static async Task<IResult> Handler(ApplicationDbContext context, ClaimsPrincipal User) {
