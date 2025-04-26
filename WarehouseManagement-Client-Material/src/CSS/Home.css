@@ -1,0 +1,42 @@
+#Hero{
+    padding: 150px 0 0 0;
+    padding-bottom: 40px;
+    background: linear-gradient(
+            rgba(0, 0, 0, 0.7),
+            rgba(44, 42, 42, 0.7)
+    ),url("../Picture/Hero.jpg");
+    background-position: center;
+    min-height: 350px;
+
+}
+#Hero-Text{
+    color: white;
+    width: 80%;
+    margin:auto;
+    text-align: center;
+    font-size: 4em;
+    p{
+        margin: 0;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+}
+#Hero-Action{
+    text-align: center;
+    font-size: 1.3em;
+    color: white;
+}
+@media screen and (max-width: 900px) {
+    #Hero{
+        padding: 100px 0 0 0;
+        padding-bottom: 40px;
+        min-height: 300px;
+    }
+    #Hero-Text{
+        width: 90%;
+        font-size: 3em;
+        p{
+            margin-bottom:10px;
+        }
+    }
+}

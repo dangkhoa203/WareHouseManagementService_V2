@@ -1,0 +1,26 @@
+#Home-NavBar{
+    background-color: rgb(237, 108, 2);
+    padding: 0 50px 0 0;
+    color: black;
+    transition: 0.5s all ease;
+    .MuiButton-text{
+        color: white;
+        transition: 0.5s all ease;
+    }
+    a{
+        text-decoration: none;
+        color: white;
+        font-weight: bolder;
+        text-transform: uppercase;
+
+    }
+}
+#WorkSpace-NavBar{
+    background-color:#ed6c02 ;
+    color: #ffede9;
+}
+@media screen and (max-width: 900px) {
+    #Home-NavBar{
+        padding: 0 0;
+    }
+}
