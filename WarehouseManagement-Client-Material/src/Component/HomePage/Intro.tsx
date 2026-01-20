@@ -1,4 +1,4 @@
-import {useNavigate} from "react-router";
+import {useNavigate, useOutletContext} from "react-router";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import {Card, CardContent, Grid2} from "@mui/material";
@@ -8,8 +8,11 @@ import SettingsSuggestTwoToneIcon from '@mui/icons-material/SettingsSuggestTwoTo
 import VerifiedUserTwoToneIcon from '@mui/icons-material/VerifiedUserTwoTone';
 import WalletTwoToneIcon from '@mui/icons-material/WalletTwoTone';
 import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
+import userInfo from "../../Type/userInfo.tsx";
+import {useUserInfo} from "../../State/User.ts";
 
 export default function Intro(){
+    const userInfo = useUserInfo((state)=> state.user);
     const navigate = useNavigate();
     return(
         <Container maxWidth="xl" style={{minHeight: "100vh",padding:"0"}}>
@@ -20,7 +23,7 @@ export default function Intro(){
                 </div>
                 <div id="Hero-Action">
                     <p>Hãy đăng ký tài khoản và bắt đầu quản lý</p>
-                    <Button color="warning" variant="contained" onClick={()=>{navigate("../Register")}} size="large" >Bắt đầu</Button>
+                    <Button color="warning" variant="contained" onClick={()=>{navigate(userInfo.isLoggedIn ? "Workspace":"Register")}} size="large" >Bắt đầu</Button>
                 </div>
             </Container>
             <Container sx={{paddingY:"20px"}} maxWidth="lg">

@@ -9,7 +9,7 @@ using WareHouseManagement.Model.Entity.Customer_Entity;
 
 namespace WareHouseManagement.Feature.Accounts {
     public class GetAccount : IEndpoint {
-        public record Response(string Username, string Userfullname, string Useremail, string Userid, bool Islogged);
+        public record Response(string UserName, string UserFullName, string UserEmail, string UserId, bool IsLoggedIn);
         public static void MapEndpoint(IEndpointRouteBuilder app) {
             app.MapGet("/api/Account/", Handler).WithTags("Account");
         }

@@ -50,6 +50,7 @@ builder.Services.AddIdentityCore<Account>(option => {
 builder.Services.ConfigureApplicationCookie(options => {
     options.Cookie.SameSite = SameSiteMode.None;
 });
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 var app = builder.Build();
 app.UseCors();
 // Configure the HTTP request pipeline.
@@ -59,7 +60,9 @@ if (app.Environment.IsDevelopment()) {
 }
 app.AddAllEndPoint();
 app.UseHttpsRedirection();
-
+var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+dbInitializer.Initialize();
 app.UseAuthorization();
 app.MapIdentityApi<Account>();
 

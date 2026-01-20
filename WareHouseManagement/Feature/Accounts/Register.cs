@@ -9,6 +9,7 @@ using WareHouseManagement.Data;
 using WareHouseManagement.Endpoint;
 using WareHouseManagement.Middleware;
 using WareHouseManagement.Model.Entity.Account;
+using WareHouseManagement.Model.Enum;
 
 namespace WareHouseManagement.Feature.Accounts {
     public class Register : IEndpoint {
@@ -61,17 +62,18 @@ namespace WareHouseManagement.Feature.Accounts {
                 }
 
                 var CreatedUser = await userManager.FindByEmailAsync(request.Email);
-                var Token = await userManager.GenerateEmailConfirmationTokenAsync(CreatedUser);
-                Token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(Token));
-                var ConfirmLink = $"https://localhost:7088/ConfirmEmail/{WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(CreatedUser.UserName))}/{Token}";
-                var body = $"Xác nhận email tại <a href='{ConfirmLink}'>đây</a>";
-                bool EmailResponse = await EmailSender.SendEmail(CreatedUser.Email, "Xác nhận Email tài khoản", "Xác nhận tài khoản bạn vừa mới đăng ký!", ConfirmLink, "Xác nhận");
-                if (!EmailResponse) {
-                    context.Users.Remove(CreatedUser);
-                    await context.SaveChangesAsync();
-                    return Results.BadRequest(new Response(false, "Lỗi đã xảy ra!", ValidateResult));
-                }
+                //var Token = await userManager.GenerateEmailConfirmationTokenAsync(CreatedUser);
+                //Token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(Token));
+                //var ConfirmLink = $"https://localhost:7088/ConfirmEmail/{WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(CreatedUser.UserName))}/{Token}";
+                //var body = $"Xác nhận email tại <a href='{ConfirmLink}'>đây</a>";
+                //bool EmailResponse = await EmailSender.SendEmail(CreatedUser.Email, "Xác nhận Email tài khoản", "Xác nhận tài khoản bạn vừa mới đăng ký!", ConfirmLink, "Xác nhận");
+                //if (!EmailResponse) {
+                //    context.Users.Remove(CreatedUser);
+                //    await context.SaveChangesAsync();
+                //    return Results.BadRequest(new Response(false, "Lỗi đã xảy ra!", ValidateResult));
+                //}
                 CreatedUser.EmailConfirmed = true;
+                await userManager.AddToRoleAsync(CreatedUser, Permission.Admin);
                 await context.SaveChangesAsync();
                 return Results.Ok(new Response(true, "", ValidateResult));
             }

@@ -6,7 +6,6 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -18,7 +17,12 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import {Outlet} from "react-router";
+import {Navigate, Outlet} from "react-router";
+import userInfoFunction from "../../Type/userInfoFunction.tsx";
+import {Menu, MenuItem, Tooltip} from "@mui/material";
+import {AccountCircle} from "@mui/icons-material";
+import {useState} from "react";
+
 
 const drawerWidth = 200;
 
@@ -111,7 +115,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-export default function WorkSpace() {
+export default function WorkSpace(props:userInfoFunction) {
+
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
@@ -122,7 +127,34 @@ export default function WorkSpace() {
     const handleDrawerClose = () => {
         setOpen(false);
     };
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+    const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const [logOutLoading, setLogOutLoading] = useState(false);
+    const logOut=async ()=>{
+        try{
+            setLogOutLoading(true);
+            await fetch('https://localhost:7075/api/Account/LogOut', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            });
+            await props.getInfo()
+        }catch{
+            console.log("Error")
+        }finally {
+            setLogOutLoading(false);
+        }
+    }
+    if(props.user.userName!=="default"&&!props.user.isLoggedIn){
+        return <Navigate to={"/"}/>
+    }
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -142,9 +174,44 @@ export default function WorkSpace() {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography width={"100%"} justifyContent={"end"} display={"flex"} variant="h6" noWrap component="div">
-                        User
-                    </Typography>
+                    <Box   sx={{width:"100%",justifyContent: 'end',marginRight:0,padding:0,display: 'flex'}} >
+                        <div>
+                            <span style={{color:"white"}}>{props.user.userName}</span>
+                            <Tooltip title="Open settings">
+                                <IconButton
+                                    size="large"
+                                    aria-controls="menu-appbar"
+                                    aria-haspopup="true"
+                                    onClick={handleMenu}
+                                    color="inherit"
+
+                                >
+                                    <AccountCircle  style={{color:"white",fontSize:"1.3em"}} />
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                disableScrollLock={true}
+                                id="menu-appbar"
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                            >
+                                <MenuItem disabled={logOutLoading} onClick={async ()=>{
+                                    handleClose();
+                                    await logOut();
+                                }}>Log Out</MenuItem>
+                            </Menu>
+                        </div>
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Drawer  variant="permanent" open={open}>
@@ -258,8 +325,8 @@ export default function WorkSpace() {
                     ))}
                 </List>
             </Drawer>
-            <Box style={{minHeight:"100vh",padding:"50px"}} component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <DrawerHeader />
+            <Box style={{minHeight:"100vh",padding:"50px",paddingTop:"70px"}} component="main" sx={{ flexGrow: 1, p: 3 }}>
+
                 <Outlet/>
             </Box>
         </Box>

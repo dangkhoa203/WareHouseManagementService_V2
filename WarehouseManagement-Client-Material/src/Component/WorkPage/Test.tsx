@@ -1,43 +1,41 @@
 import {AgGridReact} from "ag-grid-react";
-import { themeQuartz, iconSetQuartzBold,ColDef } from 'ag-grid-community';
+import { themeQuartz,ColDef } from 'ag-grid-community';
 import {useEffect, useState} from "react";
 import { AG_GRID_LOCALE_VN } from '@ag-grid-community/locale';
 
 export default function Test(){
 
     const myTheme = themeQuartz
-        .withPart(iconSetQuartzBold)
         .withParams({
-            accentColor: "#3CE4F754",
-            backgroundColor: "#0B3745",
-            borderColor: "#0FE2FA36",
+            accentColor: "#00A2FF",
+            backgroundColor: "#21222C",
+            borderColor: "#C85A00",
             borderRadius: 0,
-            cellHorizontalPaddingScale: 1.5,
-            cellTextColor: "#9EC9E6",
+            browserColorScheme: "dark",
+            cellHorizontalPaddingScale: 0.8,
+            cellTextColor: "#00A2FF",
+            checkboxUncheckedBackgroundColor: "#3F4156",
             columnBorder: true,
+            dataFontSize: 15,
             fontFamily: {
                 googleFont: "IBM Plex Mono"
             },
-            fontSize: 12,
-            dataFontSize:14,
-            foregroundColor: "#0EE2FA",
-            headerBackgroundColor: "#ED6C02",
-            headerFontFamily: {
-                googleFont: "Roboto"
-            },
-            headerFontSize: 20,
-            headerFontWeight: 800,
-            headerRowBorder: true,
-            headerTextColor: "#FDFDFD",
-            headerVerticalPaddingScale: 1.2,
-            iconSize: 24,
-            iconColor: "#FDFDFD",
-            iconButtonColor: "#FDFDFD",
-            oddRowBackgroundColor: "#0B3745",
+            fontSize: 13,
+            foregroundColor: "#ED6C02",
+            headerBackgroundColor: "#21222C",
+            headerFontSize: 15,
+            headerFontWeight: 700,
+            headerTextColor: "#ED6C02",
+            headerVerticalPaddingScale: 1.5,
+            iconSize: 17,
+            oddRowBackgroundColor: "#21222C",
+            rangeSelectionBackgroundColor: "#FFFF0020",
+            rangeSelectionBorderStyle: "solid",
             rowBorder: true,
-            rowVerticalPaddingScale: 1.2,
+            rowVerticalPaddingScale: 1.5,
+            sidePanelBorder: true,
             spacing: 4,
-            wrapperBorder: false,
+            wrapperBorder: true,
             wrapperBorderRadius: 0
         });
     const [rowData, setRowData] = useState([]);
